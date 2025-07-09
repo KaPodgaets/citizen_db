@@ -4,6 +4,7 @@ import os
 import shutil
 from sqlalchemy import text
 from src.utils.db import get_engine
+from src.transformations.error_handling import global_error_handler
 
 def calculate_sha256(file_path):
     sha256 = hashlib.sha256()
@@ -12,6 +13,7 @@ def calculate_sha256(file_path):
             sha256.update(chunk)
     return sha256.hexdigest()
 
+@global_error_handler('ingest')
 def main(file_path):
     engine = get_engine()
     file_hash = calculate_sha256(file_path)

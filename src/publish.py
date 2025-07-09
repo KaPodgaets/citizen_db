@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, text
+from src.transformations.error_handling import global_error_handler
 
 # Placeholder: configure your database URI
 DATABASE_URI = 'postgresql://user:password@localhost:5432/citizen_db'
@@ -17,8 +18,12 @@ FROM {CORE_TABLE}
 WHERE is_current = TRUE;
 '''
 
-with engine.begin() as conn:
-    conn.execute(text(TRUNCATE_SQL))
-    conn.execute(text(INSERT_SQL))
+@global_error_handler('publish')
+def main():
+    with engine.begin() as conn:
+        conn.execute(text(TRUNCATE_SQL))
+        conn.execute(text(INSERT_SQL))
+    print('Mart population complete.')
 
-print('Mart population complete.')
+if __name__ == "__main__":
+    main()

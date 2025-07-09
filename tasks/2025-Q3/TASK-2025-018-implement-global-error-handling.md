@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-018
 title: "Task 3.1: Implement Global Error Handling and Auditing"
-status: backlog
+status: done
 priority: medium
 type: tech_debt
 estimate: M
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-utilities]
 audit_log:
   - {date: 2025-07-09, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-09, user: "@AI-Assistant", action: "marked done after implementing global error handling and audit logging in all main scripts"}
 ---
 ## Description
 Ensure that all pipeline failures are caught, centrally logged, and made visible to operators for quick remediation.

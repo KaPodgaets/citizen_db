@@ -5,7 +5,9 @@ import pandera as pa
 from sqlalchemy import text
 from src.utils.db import get_engine
 from schemas.citizens_schema import citizens_schema
+from src.transformations.error_handling import global_error_handler
 
+@global_error_handler('validate')
 def main(file_id):
     engine = get_engine()
     with engine.connect() as conn:
