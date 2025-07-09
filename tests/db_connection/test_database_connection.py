@@ -1,16 +1,21 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+from urllib.parse import quote_plus
 from src.utils.config import settings
 
 def test_can_connect_to_database():
-    server = settings.server
-    database = settings.database
+    print(settings.server)
+    print(settings.database)
 
-    connection_uri = (
-        f"mssql+pyodbc://@{server}/{database}"
-        "?driver=ODBC+Driver+17+for+SQL+Server"
-        "&trusted_connection=yes"
+    connection_string = (
+        f"Driver={{ODBC Driver 17 for SQL Server}};"
+        f"Server={settings.server};"
+        f"Database={settings.database};"
+        "Trusted_Connection=yes;"
     )
+
+    encoded_connection_string = quote_plus(connection_string)
+    connection_uri = f"mssql+pyodbc:///?odbc_connect={encoded_connection_string}"
 
     try:
         engine = create_engine(connection_uri)

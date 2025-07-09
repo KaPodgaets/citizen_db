@@ -1,7 +1,9 @@
--- core_schema.sql: Idempotent DDL for the historized core layer (SCD-2)
-
+-- Idempotent DDL for core schema (MS SQL)
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'core')
+    EXEC('CREATE SCHEMA core');
+GO
 -- Example: citizen_core table (customize columns as needed)
-CREATE TABLE IF NOT EXISTS citizen_core (
+CREATE TABLE IF NOT EXISTS core.citizen (
     id SERIAL PRIMARY KEY,
     business_key VARCHAR(255) NOT NULL,
     attribute1 VARCHAR(255),
