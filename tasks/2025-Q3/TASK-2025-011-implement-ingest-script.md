@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-011
 title: "Task 1.2: Implement ingest.py"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: M
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-step-ingest]
 audit_log:
   - {date: 2025-07-09, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-09, user: "@AI-DocArchitect", action: "marked as done (ingest.py implemented)"}
 ---
 ## Description
 Implement the `ingest.py` script to automate the landing and registration of a new source file. The process must be idempotent to prevent duplicate processing.

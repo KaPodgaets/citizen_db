@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-010
 title: "Task 1.1: Develop Pandera Schemas for Source Files"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: M
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-data-contract-pandera]
 audit_log:
   - {date: 2025-07-09, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-09, user: "@AI-DocArchitect", action: "marked as done (citizens_schema.py created)"}
 ---
 ## Description
 Define the data quality rules and expected structure for incoming source data using the Pandera library. This creates the data contracts for the pipeline.

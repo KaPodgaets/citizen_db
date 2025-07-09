@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-012
 title: "Task 1.3: Implement validate.py"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: L
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-step-validate]
 audit_log:
   - {date: 2025-07-09, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-09, user: "@AI-DocArchitect", action: "marked as done (validate.py implemented)"}
 ---
 ## Description
 Implement the `validate.py` script to check a landed file against its Pandera schema and produce a clean Parquet file for the next stage.
