@@ -1,20 +1,25 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-import urllib
+from urllib.parse import quote_plus
 from src.utils.config import settings
 
 _engine: Engine = None
 
 def get_engine() -> Engine:
+    db_uri = get_connection_uri()
     global _engine
-    server = urllib.parse.quote_plus(settings.server)
-    database = settings.database
-    driver = urllib.parse.quote_plus("ODBC Driver 17 for SQL Server")
+    if _engine is None:
+        _engine = create_engine(db_uri, pool_pre_ping=True)
+    return _engine
 
-    db_url = (
-    f"mssql+pyodbc://@{server}/{database}?driver={driver}&trusted_connection=yes"
+def get_connection_uri():
+    connection_string = (
+        f"Driver={{ODBC Driver 17 for SQL Server}};"
+        f"Server={settings.server};"
+        f"Database={settings.database};"
+        "Trusted_Connection=yes;"
     )
 
-    if _engine is None:
-        _engine = create_engine(db_url, pool_pre_ping=True)
-    return _engine
+    encoded_connection_string = quote_plus(connection_string)
+    connection_uri = f"mssql+pyodbc:///?odbc_connect={encoded_connection_string}"
+    return connection_uri
