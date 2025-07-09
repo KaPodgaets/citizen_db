@@ -25,10 +25,11 @@ def main(file_path):
     with engine.begin() as conn:
         result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         if result.scalar() > 0:
-            print(f"File {file_name} already ingested (hash: {file_hash})")
+            print(f"Error! File {file_name} already ingested (hash: {file_hash})")
             return
-        # Copy file to data/land/
-        os.makedirs("data/land", exist_ok=True)
+        
+        # Copy file to data/stage/
+        os.makedirs("data/stage", exist_ok=True)
         dest_path = os.path.join("data/stage", file_name)
         shutil.copy2(file_path, dest_path)
         # Insert log
@@ -36,7 +37,14 @@ def main(file_path):
             INSERT INTO meta.ingestion_log (file_name, file_hash, status)
             VALUES (:file_name, :file_hash, 'INGESTED')
         """), {"file_name": file_name, "file_hash": file_hash})
-        print(f"Ingested {file_name} (hash: {file_hash})")
+        # get file id
+        file_id_result = conn.execute(text("select id from meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
+        row = file_id_result.fetchone()
+        if row == None:
+            print(f"Error! File id from database is not recieved")
+            return
+        file_id = row[0]
+        print(f"Ingested {file_name} (hash: {file_hash}) file id - {file_id}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ingest a new source file.")

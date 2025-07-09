@@ -1,7 +1,7 @@
 import argparse
 import os
 import pandas as pd
-import pandera as pa
+import pandera.pandas as pa
 from sqlalchemy import text
 from src.utils.db import get_engine
 from schemas.citizens_schema import citizens_schema
@@ -10,7 +10,7 @@ from src.transformations.error_handling import global_error_handler
 @global_error_handler('validate')
 def main(file_id):
     engine = get_engine()
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         # Get file info from ingestion_log
         result = conn.execute(text("SELECT file_name FROM meta.ingestion_log WHERE id = :id"), {"id": file_id})
         row = result.fetchone()
@@ -18,7 +18,7 @@ def main(file_id):
             print(f"No file found for file_id {file_id}")
             return
         file_name = row[0]
-        file_path = os.path.join("data/land", file_name)
+        file_path = os.path.join("data/stage", file_name)
         if not os.path.exists(file_path):
             print(f"File {file_path} does not exist")
             return
