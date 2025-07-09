@@ -32,3 +32,18 @@ def test_get_engine():
             assert result == 1
     finally:
         engine.dispose()
+
+def test_writing_into_ingestion_meta_table():
+    engine = get_engine()
+    with engine.begin() as conn:
+        try:
+            conn.execute(text("""
+            INSERT INTO meta.ingestion_log (file_name, file_hash, status)
+            VALUES (:file_name, :file_hash, 'INGESTED')
+            """), {"file_name": "test_file", "file_hash": "a"})
+            result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE file_hash = :hash"), {"hash": "a"})
+            
+            assert result.scalar() == 1
+        finally:
+            conn.execute(text("delete FROM meta.ingestion_log WHERE file_hash = :hash"), {"hash": "a"})
+        engine.dispose()

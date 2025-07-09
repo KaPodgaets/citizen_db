@@ -22,14 +22,14 @@ def main(file_path):
     engine = get_engine()
     file_hash = calculate_sha256(file_path)
     file_name = os.path.basename(file_path)
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         if result.scalar() > 0:
             print(f"File {file_name} already ingested (hash: {file_hash})")
             return
         # Copy file to data/land/
         os.makedirs("data/land", exist_ok=True)
-        dest_path = os.path.join("data/land", file_name)
+        dest_path = os.path.join("data/stage", file_name)
         shutil.copy2(file_path, dest_path)
         # Insert log
         conn.execute(text("""
