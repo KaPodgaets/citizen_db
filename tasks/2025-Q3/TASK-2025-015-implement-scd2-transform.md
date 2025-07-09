@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-015
 title: "Task 2.3: Implement SCD-2 Logic in transform.py"
-status: backlog
+status: done
 priority: medium
 type: feature
 estimate: L
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-step-transform]
 audit_log:
   - {date: 2025-07-09, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-09, user: "@AI-Assistant", action: "marked done after implementing SCD-2 logic in transform.py"}
 ---
 ## Description
 Implement the core transformation logic to build the historized `core` data layer. This involves correctly identifying new, changed, and unchanged records.

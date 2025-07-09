@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-003
 title: "Phase 2: Data Transformation (Core & Mart)"
-status: backlog
+status: done
 priority: medium
 type: feature
 estimate: XL
@@ -13,6 +13,7 @@ children: [TASK-2025-013, TASK-2025-014, TASK-2025-015, TASK-2025-016, TASK-2025
 arch_refs: [ARCH-pipeline-step-transform, ARCH-pipeline-step-publish, ARCH-transform-rules, ARCH-database-schemas, ARCH-pipeline-orchestration]
 audit_log:
   - {date: 2025-07-09, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-09, user: "@AI-Assistant", action: "marked done after all child tasks completed and pipeline scripts implemented"}
 ---
 ## Description
 This parent task covers the implementation of the core business logic. This includes creating the historized `core` layer with SCD-2 logic, populating the analytics-ready `mart` layer, and building the orchestrator to tie the steps together.
