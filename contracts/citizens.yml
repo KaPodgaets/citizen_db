@@ -1,0 +1,10 @@
+- version: '2024-01-01'
+  column_mapping:
+    'תעודת זהות': citizen_id
+    'שם פרטי': first_name
+    'שם משפחה': last_name
+    'תאריך לידה': birth_date
+    'שם רחוב': street_name
+    'קוד רחוב': street_code
+    'מספר בית': building_number
+    'מספר דירה': apartment_number 

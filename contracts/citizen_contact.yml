@@ -1,0 +1,10 @@
+# One file per dataset; multiple versions allowed
+versions:
+  - effective_from: 2020-01-01   # <= this date
+    columns:
+      ת"ז: citizen_id
+      שם_פרטי: first_name
+      שם_משפחה: last_name
+      תאריך_לידה: dob
+      מגדר: gender
+      מספר טלפון: phone
