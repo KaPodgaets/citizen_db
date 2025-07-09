@@ -1,0 +1,21 @@
+---
+id: TASK-2025-019
+title: "Task 3.2: Implement and Test Rollback Procedure"
+status: backlog
+priority: medium
+type: feature
+estimate: M
+assignee: 
+created: 2025-07-09
+updated: 2025-07-09
+parents: [TASK-2025-004]
+children: []
+arch_refs: [ARCH-pipeline-step-transform]
+audit_log:
+  - {date: 2025-07-09, user: "@AI-DocArchitect", action: "created with status backlog"}
+---
+## Description
+Provide a safe and reliable way to undo a faulty data load, reverting the database to its state before the load.
+
+## Acceptance Criteria
+A `--rollback` flag is added to `transform.py`. When used with a specific version identifier, it uses the metadata in the `meta.dataset_version` table to revert the corresponding data load from the `core` tables. 
