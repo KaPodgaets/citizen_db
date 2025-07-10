@@ -51,7 +51,9 @@ def main(file_id):
             columns_to_save = list(schema.columns.keys())
             validated_df = validated_df[columns_to_save]
             os.makedirs("data/stage/cleaned", exist_ok=True)
-            parquet_path = os.path.join("data/stage/cleaned", file_name + ".parquet")
+            # Remove .xlsx extension from file_name before saving as .parquet
+            base_file_name = os.path.splitext(file_name)[0]
+            parquet_path = os.path.join("data/stage/cleaned", base_file_name + ".parquet")
             validated_df.to_parquet(parquet_path)
             status = "PASS"
             error_report = None
