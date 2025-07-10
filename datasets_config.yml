@@ -2,6 +2,6 @@
 # Defines filename patterns and other rules for each dataset
 
 citizens:
-  filename_regex: '^citizens_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\\.xlsx$'
+  filename_regex: '^av_bait_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx$'
   contract: 'contracts/citizens.yml'
   # Add more dataset-specific rules as needed 
