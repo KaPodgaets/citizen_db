@@ -15,3 +15,8 @@ set PYTHONPATH=. && pytest tests/test_database_connection.py
 set PYTHONPATH=. && pytest tests/db_connection/test_database_connection.py
 ```
 
+## YAML
+```bash
+pip install yamllint
+yamllint your_file.yml
+```
