@@ -7,7 +7,7 @@ python src/ingest.py --file-path data/land/av_bait_2025-06_v-01.xlsx
 ```
 ### Validation
 ```bash
-python src/validate.py --file-id 18
+python src/validate.py --file-id 1
 ```
 ## Tests
 ```bash

@@ -49,12 +49,14 @@ def main(file_path):
             return
         # Insert log
         conn.execute(text("""
-            INSERT INTO meta.ingestion_log (file_name, file_hash, ingest_time, status)
-            VALUES (:file_name, :file_hash, :datetime_now, 'INGESTED' )
+            INSERT INTO meta.ingestion_log (file_name, file_hash, ingest_time, status, dataset_name, period)
+            VALUES (:file_name, :file_hash, :datetime_now, 'INGESTED', :dataset, :period)
         """), {
             "file_name": file_name,
             "file_hash": file_hash,
-            "datetime_now": datetime.now()
+            "datetime_now": datetime.now(),
+            "dataset": filename_metadata["dataset"],
+            "period": filename_metadata["period"]
         })
         file_id_result = conn.execute(text("select id from meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         row = file_id_result.fetchone()

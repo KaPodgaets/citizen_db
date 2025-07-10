@@ -24,7 +24,9 @@ BEGIN
         file_name NVARCHAR(255),
         file_hash CHAR(64),
         ingest_time DATETIME2 DEFAULT SYSDATETIME(),
-        status NVARCHAR(20)
+        status NVARCHAR(20),
+        dataset_name  NVARCHAR(255),
+        period NVARCHAR(20)
     );
 END
 GO
@@ -51,6 +53,7 @@ BEGIN
         version_number INT,
         created_at DATETIME2 DEFAULT SYSDATETIME(),
         description NVARCHAR(255),
+        period NVARCHAR(20),
         is_active BIT DEFAULT 1
     );
 END
