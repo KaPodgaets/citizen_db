@@ -3,18 +3,8 @@ import yaml
 from pydantic import BaseModel
 from datetime import datetime, date
 from dataclasses import dataclass
-from typing import Dict
 
-
-class ColumnMapping(BaseModel):
-    mapping: Dict[str, str]
-
-class ContractFile(BaseModel):
-    versions: Dict[date, ColumnMapping]
-
-class ContractVersion(BaseModel):
-    version_date: date
-    mapping: Dict[str, str]
+from src.models.contracts import ColumnMapping, ContractFile, ContractVersion
 
 def parse_contract(raw: dict) -> ContractFile:
     result = {}
@@ -41,15 +31,3 @@ def get_closest_mapping_before(contract: ContractFile, incoming_period: date) ->
     mapping = contract.versions[closest_date].mapping
 
     return ContractVersion(version_date=closest_date, mapping=mapping)
-
-
-
-parsed_yaml = yaml.safe_load(open("experiments/yaml/test.yaml", encoding="utf-8"))
-contract = parse_contract(parsed_yaml)
-
-incoming_period = date(2025,4,1)
-
-closest_version_of_contract = get_closest_mapping_before(contract, incoming_period)
-
-print(closest_version_of_contract.version_date)
-print(closest_version_of_contract.mapping)

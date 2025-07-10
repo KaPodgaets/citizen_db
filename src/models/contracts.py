@@ -1,9 +1,14 @@
 from pydantic import BaseModel, Field
 from typing import Dict, List
+from pydantic import BaseModel
+from datetime import datetime, date
 
-class ContractVersion(BaseModel):
-    version: str = Field(pattern=r'^\d{4}-\d{2}-\d{2}$')
-    column_mapping: Dict[str, str]
+class ColumnMapping(BaseModel):
+    mapping: Dict[str, str]
 
 class ContractFile(BaseModel):
-    versions: List[ContractVersion] 
+    versions: Dict[date, ColumnMapping]
+
+class ContractVersion(BaseModel):
+    version_date: date
+    mapping: Dict[str, str]

@@ -1,18 +1,16 @@
-version: '2024-01-01':
-  column_mapping:
-    'תעודת זהות': citizen_id
-    'שם פרטי': first_name
-    'שם משפחה': last_name
-    'תאריך לידה': birth_date
-    'גיל': age
-    'מגדר': gender
-    'שם רחוב': street_name
-    'סמל רחוב': street_code
-    'מספר בית': building_number
-    'מספר דירה': apartment_number 
+'2024-01-01':
+  'תעודת זהות': citizen_id
+  'שם פרטי': first_name
+  'שם משפחה': last_name
+  'תאריך לידה': birth_date
+  'גיל': age
+  'מגדר': gender
+  'שם רחוב': street_name
+  'סמל רחוב': street_code
+  'מספר בית': building_number
+  'מספר דירה': apartment_number 
 
 # '2025-01-01':
-#   column_mapping:
-#     'תעודת זהות': citizen_id
-#     'שם פרטי': first_name
+  # 'תעודת זהות': citizen_id
+  # 'שם פרטי': first_name
     # maybe more fields or updated mappings

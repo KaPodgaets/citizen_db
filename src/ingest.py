@@ -4,19 +4,22 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import argparse
 import hashlib
+import pandas as pd
+from datetime import datetime
 from sqlalchemy import text
 from src.utils.db import get_engine
 from src.transformations.error_handling import global_error_handler
-from src.utils.parsing import parse_and_validate_filename, validate_headers
-import pandas as pd
+from src.utils.source_file_validator import parse_and_validate_filename, validate_headers
+
 
 @global_error_handler('ingest')
 def main(file_path):
     engine = get_engine()
+
     file_name = os.path.basename(file_path)
     # 1. Validate filename and extract metadata
     try:
-        meta = parse_and_validate_filename(file_name)
+        filename_metadata = parse_and_validate_filename(file_name)
     except Exception as e:
         print(f"Filename validation failed: {e}")
         return
@@ -28,7 +31,7 @@ def main(file_path):
         return
     # 3. Validate headers
     try:
-        validate_headers(headers, meta['contract'], meta['period'])
+        validate_headers(headers, filename_metadata['contract'], filename_metadata['period'])
     except Exception as e:
         print(f"Header validation failed: {e}")
         return
@@ -46,14 +49,12 @@ def main(file_path):
             return
         # Insert log
         conn.execute(text("""
-            INSERT INTO meta.ingestion_log (file_name, file_hash, status, dataset, period, version)
-            VALUES (:file_name, :file_hash, 'READY', :dataset, :period, :version)
+            INSERT INTO meta.ingestion_log (file_name, file_hash, ingest_time, status)
+            VALUES (:file_name, :file_hash, :datetime_now, 'INGESTED' )
         """), {
             "file_name": file_name,
             "file_hash": file_hash,
-            "dataset": meta['dataset'],
-            "period": meta['period'],
-            "version": meta['version']
+            "datetime_now": datetime.now()
         })
         file_id_result = conn.execute(text("select id from meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         row = file_id_result.fetchone()
