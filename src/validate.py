@@ -4,7 +4,7 @@ import pandas as pd
 import pandera.pandas as pa
 from sqlalchemy import text
 from src.utils.db import get_engine
-from schemas.citizens_schema import citizens_schema
+from src.utils.parsing import parse_and_validate_filename, load_contract_yaml, get_column_mapping_for_date
 from src.transformations.error_handling import global_error_handler
 
 @global_error_handler('validate')
@@ -12,22 +12,33 @@ def main(file_id):
     engine = get_engine()
     with engine.begin() as conn:
         # Get file info from ingestion_log
-        result = conn.execute(text("SELECT file_name FROM meta.ingestion_log WHERE id = :id"), {"id": file_id})
+        result = conn.execute(text("SELECT file_name, dataset, period FROM meta.ingestion_log WHERE id = :id"), {"id": file_id})
         row = result.fetchone()
         if not row:
             print(f"No file found for file_id {file_id}")
             return
-        file_name = row[0]
-        file_path = os.path.join("data/stage", file_name)
+        file_name, dataset, period = row
+        file_path = os.path.join("data/landed", file_name)
         if not os.path.exists(file_path):
             print(f"File {file_path} does not exist")
             return
-        # Load and validate
+        # Load contract config
+        import yaml
+        with open("datasets_config.yml", 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+        contract_path = config[dataset]['contract']
+        # Load and map columns
         df = pd.read_excel(file_path)
+        contract = load_contract_yaml(contract_path)
+        mapping = get_column_mapping_for_date(contract, period + "-01")
+        df = df.rename(columns=mapping)
+        # Import the correct schema
+        schema_module = f"schemas.{dataset}_schema"
+        schema = __import__(schema_module, fromlist=[f"{dataset}_schema"]).__dict__[f"{dataset}_schema"]
         try:
-            validated_df = citizens_schema.validate(df)
-            os.makedirs("data/stage/clean", exist_ok=True)
-            parquet_path = os.path.join("data/stage/clean", file_name + ".parquet")
+            validated_df = schema.validate(df)
+            os.makedirs("data/stage/cleaned", exist_ok=True)
+            parquet_path = os.path.join("data/stage/cleaned", file_name + ".parquet")
             validated_df.to_parquet(parquet_path)
             status = "PASS"
             error_report = None

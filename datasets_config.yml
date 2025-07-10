@@ -1,0 +1,7 @@
+# Centralized dataset configuration for file-based staging pipeline
+# Defines filename patterns and other rules for each dataset
+
+citizens:
+  filename_regex: '^citizens_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\\.xlsx$'
+  contract: 'contracts/citizens.yml'
+  # Add more dataset-specific rules as needed 

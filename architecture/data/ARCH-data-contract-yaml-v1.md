@@ -29,11 +29,11 @@ Example (`contracts/citizens.yml`):
 ```
 
 ## Behavior
-These contracts are used in two places:
-- The ingest.py script uses the keys of the column_mapping dictionary as the list of required headers for its header validation step.
-- The validate.py script, via src/utils/parsing.py, reads the appropriate YAML file for the dataset being processed. It determines the correct column_mapping to use by finding the latest version in the file whose date is on or before the date specified in the source filename. This mapping dictionary is then used to rename the columns of the pandas DataFrame before it is validated by Pandera.
+These contracts are used in the early stages of the pipeline:
+- ingest.py: Uses the keys of the column_mapping dictionary as the list of required headers for its initial header validation step.
+- validate.py: After a file has been ingested, this script reads the appropriate YAML file for the dataset. It determines the correct column_mapping to use based on the file's period and renames the DataFrame columns before validating the data with Pandera.
 
 ## Evolution
 ### Historical
 - v1: Initial design.
-  - 2025-07-10: Role clarified. Now used for header validation in ingest and for column mapping in validate. 
+  - 2025-07-10: Role clarified. The contracts are now used for header validation in the ingest step and for column renaming in the validate step. 

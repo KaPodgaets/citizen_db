@@ -4,50 +4,67 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import argparse
 import hashlib
-import os
-import shutil
 from sqlalchemy import text
 from src.utils.db import get_engine
 from src.transformations.error_handling import global_error_handler
-
-def calculate_sha256(file_path):
-    sha256 = hashlib.sha256()
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+from src.utils.parsing import parse_and_validate_filename, validate_headers
+import pandas as pd
 
 @global_error_handler('ingest')
 def main(file_path):
     engine = get_engine()
-    file_hash = calculate_sha256(file_path)
     file_name = os.path.basename(file_path)
+    # 1. Validate filename and extract metadata
+    try:
+        meta = parse_and_validate_filename(file_name)
+    except Exception as e:
+        print(f"Filename validation failed: {e}")
+        return
+    # 2. Read headers from the file (assume Excel for now)
+    try:
+        headers = pd.read_excel(file_path, nrows=0).columns.tolist()
+    except Exception as e:
+        print(f"Failed to read headers from file: {e}")
+        return
+    # 3. Validate headers
+    try:
+        validate_headers(headers, meta['contract'], meta['period'])
+    except Exception as e:
+        print(f"Header validation failed: {e}")
+        return
+    # 4. Calculate file hash
+    sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            sha256.update(chunk)
+    file_hash = sha256.hexdigest()
+    # 5. Idempotency check and log
     with engine.begin() as conn:
         result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         if result.scalar() > 0:
-            print(f"Error! File {file_name} already ingested (hash: {file_hash})")
+            print(f"File {file_name} already ingested (hash: {file_hash})")
             return
-        
-        # Copy file to data/stage/
-        os.makedirs("data/stage", exist_ok=True)
-        dest_path = os.path.join("data/stage", file_name)
-        shutil.copy2(file_path, dest_path)
         # Insert log
         conn.execute(text("""
-            INSERT INTO meta.ingestion_log (file_name, file_hash, status)
-            VALUES (:file_name, :file_hash, 'INGESTED')
-        """), {"file_name": file_name, "file_hash": file_hash})
-        # get file id
+            INSERT INTO meta.ingestion_log (file_name, file_hash, status, dataset, period, version)
+            VALUES (:file_name, :file_hash, 'READY', :dataset, :period, :version)
+        """), {
+            "file_name": file_name,
+            "file_hash": file_hash,
+            "dataset": meta['dataset'],
+            "period": meta['period'],
+            "version": meta['version']
+        })
         file_id_result = conn.execute(text("select id from meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         row = file_id_result.fetchone()
-        if row == None:
-            print(f"Error! File id from database is not recieved")
+        if row is None:
+            print(f"Error! File id from database is not received")
             return
         file_id = row[0]
         print(f"Ingested {file_name} (hash: {file_hash}) file id - {file_id}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ingest a new source file.")
-    parser.add_argument("--file-path", required=True, help="Path to the input file")
+    parser.add_argument("--file-path", required=True, help="Path to the input file in data/landed/")
     args = parser.parse_args()
     main(args.file_path)

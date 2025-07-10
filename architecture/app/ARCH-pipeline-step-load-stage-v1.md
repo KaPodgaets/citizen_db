@@ -5,7 +5,7 @@ type: component
 layer: application
 owner: "@team-data"
 version: v1
-status: current
+status: planned
 created: 2025-07-10
 updated: 2025-07-10
 tags: [python, etl, parquet, mssql, transaction]
