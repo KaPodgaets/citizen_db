@@ -7,7 +7,7 @@ owner: "@team-data"
 version: v1
 status: current
 created: 2025-07-09
-updated: 2025-07-09
+updated: 2025-07-10
 tags: [yaml, schema, validation, contract]
 depends_on: [ARCH-data-contract-validation-pydantic]
 referenced_by: []
@@ -29,8 +29,11 @@ Example (`contracts/citizens.yml`):
 ```
 
 ## Behavior
-The `ingest.py` script, via the `src/utils/parsing.py` utility, reads the appropriate YAML file for the dataset being processed. It determines the correct `column_mapping` to use by finding the latest version in the file whose date is on or before the date specified in the source filename. This mapping dictionary is then used to rename the columns of the pandas DataFrame before it's loaded into the `raw` database layer.
+These contracts are used in two places:
+- The ingest.py script uses the keys of the column_mapping dictionary as the list of required headers for its header validation step.
+- The validate.py script, via src/utils/parsing.py, reads the appropriate YAML file for the dataset being processed. It determines the correct column_mapping to use by finding the latest version in the file whose date is on or before the date specified in the source filename. This mapping dictionary is then used to rename the columns of the pandas DataFrame before it is validated by Pandera.
 
 ## Evolution
 ### Historical
-- v1: Initial design. 
+- v1: Initial design.
+  - 2025-07-10: Role clarified. Now used for header validation in ingest and for column mapping in validate. 
