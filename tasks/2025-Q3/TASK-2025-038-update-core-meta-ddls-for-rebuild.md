@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-038
 title: "Phase 3: Update Core and Meta Table DDLs for Rebuild Strategy"
-status: backlog
+status: done
 priority: medium
 type: feature
 estimate: M
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-data-model-core]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 Align the database schema with the new metadata-driven loading strategy by updating the DDL scripts.

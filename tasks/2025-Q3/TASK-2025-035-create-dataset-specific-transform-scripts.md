@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-035
 title: "Phase 2: Create Directory and Template for Modular Transform Scripts"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: M
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-step-transform]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 Establish the new structure for modular transform scripts by creating a dedicated directory and providing a starting template for each dataset.

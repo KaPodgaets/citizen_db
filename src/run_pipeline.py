@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import subprocess
+import yaml
 from sqlalchemy import text
 from src.utils.db import get_engine
 from datetime import datetime
@@ -39,69 +40,80 @@ def trigger_stage_load():
 
 
 def prepare_transforms():
-    """Identifies new dataset/period combinations from staging and creates PENDING tasks."""
+    """Identifies new work for the transform step and creates PENDING records."""
     engine = get_engine()
-    with engine.begin() as conn:
-        # Find dataset-periods that were successfully staged but not yet transformed
+    
+    with engine.connect() as conn:
+        # Find successful stage loads that don't have a PASS record in transform_log
         query = text("""
-            WITH StagedWork AS (
-                SELECT DISTINCT il.dataset_name, il.period
-                FROM meta.stage_load_log sll
-                JOIN meta.validation_log vl ON sll.validation_log_id = vl.id
-                JOIN meta.ingestion_log il ON vl.file_id = il.id
-                WHERE sll.status = 'PASS'
-            )
-            SELECT sw.dataset_name, sw.period
-            FROM StagedWork sw
-            LEFT JOIN meta.transform_log tl ON sw.dataset_name = tl.dataset_name AND sw.period = tl.period
-            WHERE tl.id IS NULL OR tl.status = 'FAIL';
+            SELECT sl.dataset_name, sl.period
+            FROM meta.stage_load_log sl
+            LEFT JOIN meta.transform_log tl ON sl.dataset_name = tl.dataset_name AND sl.period = tl.period
+            WHERE sl.status = 'PASS' AND tl.status IS NULL
         """)
         new_work = conn.execute(query).fetchall()
+
+        if not new_work:
+            print("No new transform tasks to create.")
+            return
 
         for dataset_name, period in new_work:
             # Check if a 'FAIL' record already exists to avoid creating duplicates
             check_query = text("SELECT id FROM meta.transform_log WHERE dataset_name = :d AND period = :p")
-            exists = conn.execute(check_query, {"d": dataset_name, "p": period}).fetchone()
-            if not exists:
-                print(f"Creating PENDING transform task for {dataset_name}/{period}")
+            existing = conn.execute(check_query, {"d": dataset_name, "p": period}).fetchone()
+            
+            if not existing:
                 insert_query = text("""
-                    INSERT INTO meta.transform_log (dataset_name, period, status, retry_count, last_attempt_timestamp)
+                    INSERT INTO meta.transform_log (dataset_name, period, status, retry_count, created_timestamp)
                     VALUES (:dataset, :period, 'PENDING', 0, :now)
                 """)
                 conn.execute(insert_query, {"dataset": dataset_name, "period": period, "now": datetime.now()})
+                print(f"Created PENDING transform task for {dataset_name}/{period}")
 
 
 def trigger_transforms():
     """Triggers the transform script for PENDING tasks or failed tasks that can be retried."""
     engine = get_engine()
+    with open("datasets_config.yml", 'r', encoding='utf-8') as f:
+        datasets_config = yaml.safe_load(f)
     
     # Find tasks that need to be run
     query = text("SELECT id, dataset_name, period FROM meta.transform_log WHERE status = 'PENDING' OR (status = 'FAIL' AND retry_count < 1)")
     tasks_to_run = engine.connect().execute(query).fetchall()
 
     for task_id, dataset, period in tasks_to_run:
+        script_path = datasets_config.get(dataset, {}).get('transform_script')
+        if not script_path:
+            error_msg = f"Transform script not defined for dataset '{dataset}' in datasets_config.yml"
+            print(error_msg)
+            with engine.begin() as conn:
+                update_query = text("UPDATE meta.transform_log SET status = 'FAIL', error_message = :err, retry_count = 99 WHERE id = :id")
+                conn.execute(update_query, {"err": error_msg, "id": task_id})
+            continue
+
         print(f"Triggering transform for {dataset}/{period} (Task ID: {task_id})")
         proc = subprocess.run(
-            ['python', 'src/transform.py', '--dataset', dataset, '--period', period],
+            ['python', script_path, '--dataset', dataset, '--period', period],
             capture_output=True, text=True
         )
 
         with engine.begin() as conn:
             if proc.returncode == 0:
                 # Success
-                update_query = text("UPDATE meta.transform_log SET status = 'PASS', last_attempt_timestamp = :now WHERE id = :id")
+                update_query = text("UPDATE meta.transform_log SET status = 'PASS', last_attempt_timestamp = :now, error_message = NULL WHERE id = :id")
                 conn.execute(update_query, {"now": datetime.now(), "id": task_id})
                 print(f"Transform for {dataset}/{period} SUCCEEDED.")
             else:
                 # Failure
                 error_msg = proc.stderr or proc.stdout
+                print(f"Transform for {dataset}/{period} FAILED. Error:\n{error_msg}")
                 update_query = text("""
                     UPDATE meta.transform_log 
                     SET status = 'FAIL', retry_count = retry_count + 1, last_attempt_timestamp = :now, error_message = :err
                     WHERE id = :id
                 """)
                 conn.execute(update_query, {"now": datetime.now(), "err": error_msg, "id": task_id})
-                print(f"Transform for {dataset}/{period} FAILED. See meta.transform_log for details.")
+                print(f"See meta.transform_log (ID: {task_id}) for details.")
 
 
 if __name__ == "__main__":

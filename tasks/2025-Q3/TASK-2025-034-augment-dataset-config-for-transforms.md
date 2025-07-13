@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-034
 title: "Phase 2: Augment Dataset Configuration for Transform Scripts"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: S
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-step-transform]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 Extend the central `datasets_config.yml` file to define the specific transformation script for each dataset, enabling a configuration-driven approach.

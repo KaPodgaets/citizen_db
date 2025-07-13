@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-039
 title: "Phase 3: Deprecate and Remove Old Transform Script"
-status: backlog
+status: done
 priority: medium
 type: chore
 estimate: S
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-step-transform]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 Finalize the refactoring by removing the obsolete, monolithic transform script.

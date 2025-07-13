@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-037
 title: "Phase 3: Refactor Transform Scripts with Metadata-Driven Rebuild Logic"
-status: backlog
+status: done
 priority: medium
 type: feature
 estimate: L
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-step-transform, ARCH-data-model-core]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 Implement the new, simpler core data loading strategy within each dataset-specific transform script, using the `meta.dataset_version` table for state management.

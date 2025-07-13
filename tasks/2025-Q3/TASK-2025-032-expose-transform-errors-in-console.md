@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-032
 title: "Phase 1: Expose Transformation Errors in the Console"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: S
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-orchestration]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 To provide immediate visibility into transformation failures and speed up debugging, modify the orchestrator to print errors to the console.

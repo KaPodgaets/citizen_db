@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-036
 title: "Phase 2: Modify Orchestrator to Use Dynamic Transform Scripts"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: M
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-orchestration, ARCH-pipeline-step-transform]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 Refactor the orchestrator to use the new configuration in `datasets_config.yml` to run the correct, dataset-specific transform script.
