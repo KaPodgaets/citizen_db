@@ -12,6 +12,6 @@ new_immigrants:
   transform_script: 'src/transformations/scripts/transform_new_immigrants.py'
 
 welfare_patients:
-  filename_regex: '^welfare_patients_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.csv'
+  filename_regex: '^welfare_patients_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
   contract: 'contracts/welfare_patients.yml'
   transform_script: 'src/transformations/scripts/transform_welfare_patients.py'

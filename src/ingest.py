@@ -25,7 +25,16 @@ def main(file_path):
         return
     # 2. Read headers from the file (assume Excel for now)
     try:
-        headers = pd.read_excel(file_path, nrows=0).columns.tolist()
+        # Load and map columns based on file extension
+        file_extension = os.path.splitext(file_path)[1].lower()
+        
+        if file_extension == '.csv':
+            headers = pd.read_csv(file_path, nrows=0).columns.tolist()
+        elif file_extension == '.xlsx':
+            headers = pd.read_excel(file_path, nrows=0).columns.tolist()
+        else:
+            raise ValueError(f"Unsupported file format: {file_extension}. Only .csv and .xlsx files are supported.")
+        
     except Exception as e:
         print(f"Failed to read headers from file: {e}")
         return
