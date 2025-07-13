@@ -58,6 +58,7 @@ def main(file_path):
             "dataset": filename_metadata["dataset"],
             "period": filename_metadata["period"]
         })
+        
         file_id_result = conn.execute(text("select id from meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         row = file_id_result.fetchone()
         if row is None:

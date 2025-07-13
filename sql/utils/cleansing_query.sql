@@ -4,6 +4,13 @@ BEGIN
 END
 GO
 
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'stage_load_log' AND schema_id = SCHEMA_ID('meta'))
+BEGIN
+    delete from meta.stage_load_log;
+END
+GO
+
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'ingestion_log' AND schema_id = SCHEMA_ID('meta'))
 BEGIN
     delete from meta.ingestion_log;
@@ -22,15 +29,21 @@ BEGIN
 END
 GO
 
-IF EXISTS (SELECT * FROM sys.tables WHERE name = 'citizen_core')
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'transform_log' AND schema_id = SCHEMA_ID('meta'))
 BEGIN
-    delete from meta.citizen_core;
+    delete from meta.transform_log;
 END
 GO
 
-IF EXISTS (SELECT * FROM sys.tables WHERE name = 'citizen_mart_fact')
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'av_bait' AND schema_id = SCHEMA_ID('stage'))
 BEGIN
-    delete from meta.citizen_mart_fact;
+    delete from stage.av_bait;
 END
 GO
 
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'av_bait' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.av_bait;
+END
+GO

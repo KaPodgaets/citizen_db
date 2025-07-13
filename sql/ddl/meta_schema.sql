@@ -58,3 +58,33 @@ BEGIN
     );
 END
 GO 
+
+
+-- Create meta.stage_load_log table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'stage_load_log' AND schema_id = SCHEMA_ID('meta'))
+BEGIN
+    CREATE TABLE meta.stage_load_log (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        validation_log_id INT NOT NULL,
+        status NVARCHAR(50) NOT NULL,
+        load_timestamp DATETIME2 DEFAULT GETDATE(),
+        error_message NVARCHAR(MAX),
+        CONSTRAINT FK_stage_load_log_validation_log FOREIGN KEY (validation_log_id) REFERENCES meta.validation_log(id)
+    );
+END
+GO
+
+-- Create meta.transform_log table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'transform_log' AND schema_id = SCHEMA_ID('meta'))
+BEGIN
+    CREATE TABLE meta.transform_log (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        dataset_name NVARCHAR(255) NOT NULL,
+        period VARCHAR(7) NOT NULL,
+        status NVARCHAR(50) NOT NULL, -- PENDING, PASS, FAIL
+        retry_count INT DEFAULT 0,
+        last_attempt_timestamp DATETIME2 DEFAULT GETDATE(),
+        error_message NVARCHAR(MAX)
+    );
+END
+GO
