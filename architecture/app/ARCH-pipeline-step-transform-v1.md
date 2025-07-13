@@ -5,7 +5,7 @@ type: component
 layer: application
 owner: "@team-data"
 version: v1
-status: current
+status: deprecated
 created: 2025-07-09
 updated: 2025-07-13
 tags: [python, transform, etl, scd2]
@@ -24,5 +24,6 @@ The script's execution is governed by the orchestrator and the `meta.transform_l
 
 ## Evolution
 ### Historical
+- **2025-07-13**: This monolithic, SCD-2 based approach is deprecated in favor of the v2 architecture (`ARCH-pipeline-step-transform-v2.md`), which uses a simpler, metadata-driven rebuild strategy.
 - **2025-07-13**: Script refactored to be properly controlled by the orchestrator via command-line arguments and to report status back to `meta.transform_log`.
 - **2025-07-10**: Adapted to be period-aware, processing data from the `stage` layer for a specific period passed as an argument. 

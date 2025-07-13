@@ -20,7 +20,7 @@ The database definitions are managed as version-controlled, idempotent DDL scrip
 
 meta: Defines tables for auditing and pipeline control (`etl_audit`, `ingestion_log`, `validation_log`, `dataset_version`). This schema enables idempotency, operational monitoring, and data versioning. It will be enhanced with tables for `stage_load_log` and `transform_log` to support more granular, resilient orchestration.
 - stage: Holds data that has been validated and loaded from Parquet files. Data in this layer is cleaned, correctly typed, and ready for transformation. All tables in this schema include an indexed `_data_period` column and a `_source_parquet_path` column to support idempotent, period-level reloads and enhance traceability.
-core: The historized, normalized data layer. These tables implement Slowly Changing Dimension (SCD) Type 2 patterns to track changes over time.
+core: The historized, normalized data layer. These tables implement Slowly Changing Dimension (SCD) Type 2 patterns to track changes over time. **Note: This SCD-2 model is being deprecated in favor of a simpler, versioned model described in `ARCH-data-model-core-v2.md`.**
 mart: The denormalized analytics layer, typically in a star schema optimized for BI tools.
 
 ## Behavior

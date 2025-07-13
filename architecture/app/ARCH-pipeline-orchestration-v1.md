@@ -16,6 +16,9 @@ referenced_by: []
 The pipeline orchestrator (`run_pipeline.py`) is the central coordinator that manages the flow of data through the entire ETL pipeline. It uses the metadata tables in the `meta` schema to track the state of each file and data period, ensuring idempotent and resumable execution.
 
 ## Behavior
+The orchestrator script (`run_pipeline.py`) is the central coordinator that manages the flow of data through the entire ETL pipeline. It uses the metadata tables in the `meta` schema to track the state of each file and data period, ensuring idempotent and resumable execution.
+
+## Behavior
 The orchestrator script queries the `meta` tables to drive the pipeline forward. The typical flow for a new file is:
 1.  Queries `meta.ingestion_log` to find files ready for validation and triggers `validate.py`.
 2.  Queries `meta.validation_log` for new 'PASS' records not yet logged in `meta.stage_load_log` and triggers `load_stage.py` for each.
@@ -27,6 +30,10 @@ The orchestrator script queries the `meta` tables to drive the pipeline forward.
 This stateful, metadata-driven approach makes the pipeline resumable and idempotent at a process level.
 
 ## Evolution
+### Planned
+- **Observability Enhancements**: The orchestrator will be modified to provide more immediate feedback. Errors from transform scripts will be printed directly to the console, and a notification will be shown when no new tasks are found.
+- **Dynamic Script Execution**: The `trigger_transforms` function will be refactored to read a `transform_script` path from `datasets_config.yml` for each dataset, allowing for modular, dataset-specific transformation logic instead of calling a single monolithic script.
+
 ### Historical
 - v1: Initial design.
 - **2025-07-13**: Implemented the core orchestration logic, including the resilient transform step with a single retry. 
