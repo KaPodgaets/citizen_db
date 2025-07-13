@@ -32,8 +32,15 @@ def main(file_id):
         with open("datasets_config.yml", 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
         contract_path = config[dataset_name]['contract']
-        # Load and map columns
-        df = pd.read_excel(file_path)
+        # Load and map columns based on file extension
+        file_extension = os.path.splitext(file_path)[1].lower()
+        
+        if file_extension == '.csv':
+            df = pd.read_csv(file_path)
+        elif file_extension == '.xlsx':
+            df = pd.read_excel(file_path)
+        else:
+            raise ValueError(f"Unsupported file format: {file_extension}. Only .csv and .xlsx files are supported.")
 
         # read yaml file to get contracts as raw string
         with open(contract_path, encoding="utf-8") as f:
