@@ -79,6 +79,16 @@ def main(dataset: str, period: str):
         
         staging_df_for_main_table['is_current'] = 1
         
+        # Transform data types to match core table schema
+        # Convert FLOAT columns to NVARCHAR for core table compatibility
+        float_columns_to_convert = ['street_code', 'building_number', 'apartment_number']
+        for col in float_columns_to_convert:
+            if col in staging_df_for_main_table.columns:
+                # Convert FLOAT to string, handling NaN values
+                staging_df_for_main_table[col] = staging_df_for_main_table[col].astype(str)
+                # Replace 'nan' strings with None for NULL values
+                staging_df_for_main_table[col] = staging_df_for_main_table[col].replace('nan', None)
+        
         staging_df_for_main_table.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
         print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
 
