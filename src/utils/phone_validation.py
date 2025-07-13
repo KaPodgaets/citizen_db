@@ -76,6 +76,7 @@ def process_israeli_phone_numbers(phone_df, phone_number_column='phone_number'):
     
     # Keep only valid Israeli numbers
     phone_df = phone_df.dropna(subset=['formatted_number'])
+    phone_df = phone_df.drop(columns=['phone_number'])
     
     # Rename columns and select final structure
     phone_df = phone_df.rename(columns={'formatted_number': 'phone_number'})

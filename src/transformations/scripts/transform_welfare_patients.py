@@ -50,7 +50,7 @@ def main(dataset: str, period: str):
             core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
             delete_stmt = core_table.delete()
             conn.execute(delete_stmt)
-            print(f"Deleted data for from core table")
+            print("Deleted data for from core table")
         except Exception as e:
             print(f"Could not delete old data, perhaps schema not updated yet? Error: {e}")
 
@@ -70,26 +70,26 @@ def main(dataset: str, period: str):
         metadata_cols_to_drop = ['_data_period', '_source_parquet_path']
         existing_cols_to_drop = [col for col in metadata_cols_to_drop if col in staging_df.columns]
         if existing_cols_to_drop:
-            staging_df_for_main_table = staging_df.drop(columns=existing_cols_to_drop)
+            staging_df_to_core = staging_df.drop(columns=existing_cols_to_drop)
 
         phone_cols_to_drop = ['mobile_phone_number', 'home_phone_number']
         existing_cols_to_drop = [col for col in phone_cols_to_drop if col in staging_df.columns]
         if existing_cols_to_drop:
-            staging_df_for_main_table = staging_df_for_main_table.drop(columns=existing_cols_to_drop)
+            staging_df_to_core = staging_df_to_core.drop(columns=existing_cols_to_drop)
         
-        staging_df_for_main_table['is_current'] = 1
+        staging_df_to_core['is_current'] = 1
         
         # Transform data types to match core table schema
         # Convert FLOAT columns to NVARCHAR for core table compatibility
         float_columns_to_convert = ['street_code', 'building_number', 'apartment_number']
         for col in float_columns_to_convert:
-            if col in staging_df_for_main_table.columns:
+            if col in staging_df_to_core.columns:
                 # Convert FLOAT to string, handling NaN values
-                staging_df_for_main_table[col] = staging_df_for_main_table[col].astype(str)
+                staging_df_to_core[col] = staging_df_to_core[col].astype(str)
                 # Replace 'nan' strings with None for NULL values
-                staging_df_for_main_table[col] = staging_df_for_main_table[col].replace('nan', None)
+                staging_df_to_core[col] = staging_df_to_core[col].replace('nan', None)
         
-        staging_df_for_main_table.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
+        staging_df_to_core.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
         print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
 
         # Process phone numbers and add to core.phone_numbers (only citizen_id and phones)
@@ -120,7 +120,7 @@ def main(dataset: str, period: str):
             print("No phone columns found or DataFrame is empty")
             return
         
-        phone_df['dataset'] = dataset
+        phone_df['dataset_name'] = dataset
 
 
         # clean core.phone_numbers from previous data
@@ -129,7 +129,7 @@ def main(dataset: str, period: str):
         """)
         conn.execute(delete_query_sql, {"dataset": dataset})
         # append new data
-        phone_df.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
+        phone_df.to_sql(name="phone_numbers", con=conn, schema=core_schema, if_exists='append', index=False)
 
         
 
@@ -139,4 +139,4 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", type=str, required=True, help="Dataset name to process (e.g., 'av_bait').")
     parser.add_argument("--period", type=str, required=True, help="Period to process (e.g., '2025-07').")
     args = parser.parse_args()
-    main(dataset=args.dataset, period=args.period) 
+    main(dataset=args.dataset, period=args.period)

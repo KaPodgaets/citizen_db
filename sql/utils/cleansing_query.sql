@@ -47,3 +47,15 @@ BEGIN
     delete from core.av_bait;
 END
 GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'welfare_patients' AND schema_id = SCHEMA_ID('stage'))
+BEGIN
+    delete from stage.welfare_patients;
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'welfare_patients' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.welfare_patients;
+END
+GO

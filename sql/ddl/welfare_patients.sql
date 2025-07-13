@@ -10,11 +10,11 @@ BEGIN
         head_family_citizen_id INT NOT NULL,
         citizen_id INT NOT NULL,
         street_name NVARCHAR(255) NULL,
-        street_code FLOAT NULL,
-        building_number FLOAT NULL,
-        apartment_number FLOAT NULL,
-        mobile_phone_number NVARCHAR(20) NULL,
-        home_phone_number NVARCHAR(20) NULL,
+        street_code NVARCHAR(50) NULL,
+        building_number NVARCHAR(20) NULL,
+        apartment_number NVARCHAR(20) NULL,
+        mobile_phone_number NVARCHAR(200) NULL,
+        home_phone_number NVARCHAR(200) NULL,
         _data_period NVARCHAR(7) NOT NULL,
         _source_parquet_path NVARCHAR(1024) NOT NULL
     );
@@ -38,8 +38,6 @@ BEGIN
         street_code NVARCHAR(50) NULL,
         building_number NVARCHAR(20) NULL,
         apartment_number NVARCHAR(20) NULL,
-        mobile_phone_number NVARCHAR(20) NULL,
-        home_phone_number NVARCHAR(20) NULL,
         is_current INT NOT NULL
     );
 END

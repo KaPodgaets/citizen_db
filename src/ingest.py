@@ -71,7 +71,7 @@ def main(file_path):
         file_id_result = conn.execute(text("select id from meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         row = file_id_result.fetchone()
         if row is None:
-            print(f"Error! File id from database is not received")
+            print("Error! File id from database is not received")
             return
         file_id = row[0]
         print(f"Ingested {file_name} (hash: {file_hash}) file id - {file_id}")
