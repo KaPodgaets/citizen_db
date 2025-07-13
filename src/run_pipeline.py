@@ -120,10 +120,15 @@ def trigger_transforms():
                 print(f"See meta.transform_log (ID: {task_id}) for details.")
 
 
+def trigger_publish():
+    """Triggers the publish script of datamart layer """
+    
+
 if __name__ == "__main__":
     print("--- Pipeline Orchestrator Starting ---")
     trigger_validation() # In a real scenario, ingestion would be separate. For now, assume files are ingested.
     trigger_stage_load()
     prepare_transforms()
     trigger_transforms()
+    trigger_publish()
     print("--- Pipeline Orchestrator Finished ---")
