@@ -39,16 +39,16 @@ def main(dataset: str, period: str, rollback_version: int = None):
     # (This is a simplified example. Adjust keys/columns as needed.)
     # TODO: Key and attribute columns should be defined per-dataset in a config file
     key_cols = ['citizen_id']
-    attr_cols = ['first_name', 'last_name', 'street_name', 'street_code', 'age', 'building_number', 
+    attr_cols = ['street_name', 'street_code', 'age', 'building_number', 
                  'apartment_number', 'family_index_number']
 
     merged = pd.merge(staging_df, core_df, on=key_cols, how='left', suffixes=('', '_core'))
 
     # New records: not in core
-    new_records = merged[merged['id_core'].isna()]
+    new_records = merged[merged['citizen_id'].isna()]
 
     # Changed records: in core, but attributes differ
-    changed_records = merged[(~merged['id_core'].isna()) & (
+    changed_records = merged[(~merged['citizen_id'].isna()) & (
         (merged[attr_cols] != merged[[f'{c}_core' for c in attr_cols]]).any(axis=1)
     )]
 
