@@ -22,15 +22,4 @@ BEGIN
 END
 GO
 
-IF EXISTS (SELECT * FROM sys.tables WHERE name = 'core.citizens')
-BEGIN
-    drop table core.citizens;
-END
-GO
-
-IF EXISTS (SELECT * FROM sys.tables WHERE name = 'mart.citizens_fact')
-BEGIN
-    drop table mart.citizens_fact;
-END
-GO
 

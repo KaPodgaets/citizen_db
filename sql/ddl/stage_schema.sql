@@ -8,13 +8,14 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'citizens' AND schema_id = 
 BEGIN
     CREATE TABLE stage.citizens (
         citizen_id INT NOT NULL,
-        first_name NVARCHAR(255) NOT NULL,
+        first_name NVARCHAR(255) NULL,
         last_name NVARCHAR(255) NOT NULL,
-        birth_date DATETIME NULL,
+        age INT NOT NULL,
         street_name NVARCHAR(255) NULL,
         street_code NVARCHAR(50) NULL,
         building_number NVARCHAR(20) NULL,
-        apartment_number NVARCHAR(20) NULL
+        apartment_number NVARCHAR(20) NULL,
+        family_index_number INT NOT NULL
     );
 END
 GO
