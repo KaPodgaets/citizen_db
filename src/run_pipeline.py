@@ -45,11 +45,14 @@ def prepare_transforms():
     
     with engine.connect() as conn:
         # Find successful stage loads that don't have a PASS record in transform_log
+        # Join through: stage_load_log -> validation_log -> ingestion_log to get dataset info
         query = text("""
-            SELECT sl.dataset_name, sl.period
-            FROM meta.stage_load_log sl
-            LEFT JOIN meta.transform_log tl ON sl.dataset_name = tl.dataset_name AND sl.period = tl.period
-            WHERE sl.status = 'PASS' AND tl.status IS NULL
+            SELECT il.dataset_name, il.period
+            FROM meta.stage_load_log sll
+            JOIN meta.validation_log vl ON sll.validation_log_id = vl.id
+            JOIN meta.ingestion_log il ON vl.file_id = il.id
+            LEFT JOIN meta.transform_log tl ON il.dataset_name = tl.dataset_name AND il.period = tl.period
+            WHERE sll.status = 'PASS' AND tl.status IS NULL
         """)
         new_work = conn.execute(query).fetchall()
 
@@ -64,10 +67,11 @@ def prepare_transforms():
             
             if not existing:
                 insert_query = text("""
-                    INSERT INTO meta.transform_log (dataset_name, period, status, retry_count, created_timestamp)
-                    VALUES (:dataset, :period, 'PENDING', 0, :now)
+                    INSERT INTO meta.transform_log (dataset_name, period, status, retry_count)
+                    VALUES (:dataset, :period, 'PENDING', 0)
                 """)
-                conn.execute(insert_query, {"dataset": dataset_name, "period": period, "now": datetime.now()})
+                conn.execute(insert_query, {"dataset": dataset_name, "period": period})
+                conn.commit()
                 print(f"Created PENDING transform task for {dataset_name}/{period}")
 
 
@@ -118,7 +122,7 @@ def trigger_transforms():
 
 if __name__ == "__main__":
     print("--- Pipeline Orchestrator Starting ---")
-    # trigger_validation() # In a real scenario, ingestion would be separate. For now, assume files are ingested.
+    trigger_validation() # In a real scenario, ingestion would be separate. For now, assume files are ingested.
     trigger_stage_load()
     prepare_transforms()
     trigger_transforms()

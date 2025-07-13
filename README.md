@@ -3,11 +3,16 @@
 ## Flow
 ### Ingestion
 ```bash
-python src/ingest.py --file-path data/land/av_bait_2025-07_v-01.xlsx
+python src/ingest.py --file-path data/land/av_bait_2025-06_v-01.xlsx
 ```
 ### Validation
 ```bash
 python src/validate.py --file-id 1
+```
+
+### Run pipeline
+```
+python src/run_pipeline.py
 ```
 ## Tests
 ```bash

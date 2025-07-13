@@ -34,3 +34,16 @@ BEGIN
     delete from meta.transform_log;
 END
 GO
+
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'av_bait' AND schema_id = SCHEMA_ID('stage'))
+BEGIN
+    delete from stage.av_bait;
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'av_bait' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.av_bait;
+END
+GO
