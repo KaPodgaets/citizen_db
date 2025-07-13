@@ -41,7 +41,8 @@ BEGIN
         street_code NVARCHAR(50) NULL,
         building_number NVARCHAR(20) NULL,
         apartment_number NVARCHAR(20) NULL,
-        family_index_number INT NOT NULL
+        family_index_number INT NOT NULL,
+        is_current INT NOT NULL
     );
 END
 GO

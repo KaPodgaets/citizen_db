@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-030
 title: "Task 2.1: Enhance Orchestrator with Resilient Transform Logic (v2)"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: L
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-pipeline-orchestration, ARCH-pipeline-step-transform]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 Refactor the `run_pipeline.py` script to create a fully automated and resilient flow from validation to core layer population. This includes integrating the new staging step and implementing a "rebuild core" logic with a single-retry mechanism for the transformation step.

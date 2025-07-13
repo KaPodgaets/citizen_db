@@ -20,20 +20,14 @@ The database definitions are managed as version-controlled, idempotent DDL scrip
 
 meta: Defines tables for auditing and pipeline control (`etl_audit`, `ingestion_log`, `validation_log`, `dataset_version`). This schema enables idempotency, operational monitoring, and data versioning. It will be enhanced with tables for `stage_load_log` and `transform_log` to support more granular, resilient orchestration.
 - stage: Holds data that has been validated and loaded from Parquet files. Data in this layer is cleaned, correctly typed, and ready for transformation. All tables in this schema include an indexed `_data_period` column and a `_source_parquet_path` column to support idempotent, period-level reloads and enhance traceability.
-
 core: The historized, normalized data layer. These tables implement Slowly Changing Dimension (SCD) Type 2 patterns to track changes over time.
-
 mart: The denormalized analytics layer, typically in a star schema optimized for BI tools.
 
 ## Behavior
 The DDL scripts are designed to be run to set up or update the database. The Python application interacts with the tables defined by these scripts but does not have permissions to alter the schemas themselves, ensuring a clean separation of concerns and enhancing security.
 
 ## Evolution
-### Planned
-- **Enhanced Auditing**: Two new log tables will be added to the `meta` schema: `meta.stage_load_log` to track the outcome of loading Parquet files into the stage tables, and `meta.transform_log` to manage the state and retries of the core transformation step.
-- **Enhanced Traceability**: All tables in the `stage` schema will be altered to include a `_source_parquet_path` column, directly linking each staged record to the file it originated from.
-
 ### Historical
 - v1: Initial design.
-
-2025-07-10: The `raw` schema was removed in favor of a file-based staging approach using Parquet. The `stage` schema is now loaded from these Parquet files and all its tables have been modified to include an indexed `_data_period` column. 
+- **2025-07-13**: Added `meta.stage_load_log` and `meta.transform_log` for enhanced auditing and resilient orchestration. Added `_source_parquet_path` to stage tables for traceability.
+- **2025-07-10**: The `raw` schema was removed in favor of a file-based staging approach using Parquet. The `stage` schema is now loaded from these Parquet files and all its tables have been modified to include an indexed `_data_period` column. 

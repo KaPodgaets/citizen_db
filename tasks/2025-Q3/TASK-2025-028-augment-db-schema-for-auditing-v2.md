@@ -1,7 +1,7 @@
 ---
 id: TASK-2025-028
 title: "Task 1.1: Augment DB Schema for Auditing and Traceability (v2)"
-status: backlog
+status: done
 priority: high
 type: feature
 estimate: L
@@ -13,6 +13,7 @@ children: []
 arch_refs: [ARCH-database-schemas]
 audit_log:
   - {date: 2025-07-13, user: "@AI-DocArchitect", action: "created with status backlog"}
+  - {date: 2025-07-13, user: "@AI-Roboticist", action: "marked as done"}
 ---
 ## Description
 To support the enhanced pipeline logic, the database schema must be updated for better auditing and traceability. This involves creating new log tables and adding metadata columns to existing stage tables.
