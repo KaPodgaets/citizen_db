@@ -9,7 +9,7 @@ status: current
 created: 2025-07-09
 updated: 2025-07-13
 tags: [python, orchestration, etl, resilience]
-depends_on: [ARCH-pipeline-step-validate, ARCH-pipeline-step-load-stage, ARCH-pipeline-step-transform, ARCH-pipeline-step-publish, ARCH-database-schemas]
+depends_on: [ARCH-pipeline-step-validate, ARCH-pipeline-step-load-stage, ARCH-pipeline-step-transform, ARCH-pipeline-step-publish, ARCH-database-schemas, ARCH-pipeline-step-publish-citizen-datamart]
 referenced_by: []
 ---
 ## Context
@@ -25,7 +25,7 @@ The orchestrator script queries the `meta` tables to drive the pipeline forward.
 3.  Identifies new work for the transform step by finding successful loads in `meta.stage_load_log` that do not have a 'PASS' record in `meta.transform_log`. It creates 'PENDING' records in `meta.transform_log`.
 4.  Triggers `transform.py` for any 'PENDING' records (or failed records that are eligible for a retry) in `meta.transform_log`.
 5.  **Resilient Transformation**: If a transform fails, the orchestrator updates the log status to 'FAIL' and increments a `retry_count`. It will re-trigger the transform once if `retry_count` is less than 1. This makes the pipeline more resilient to transient failures.
-6.  Finally, it can trigger `publish.py` to update the data marts (this part of the orchestration is not yet fully implemented).
+6.  Finally, it triggers the appropriate publishing scripts (e.g., `publish_citizen_mart.py`) to update specific data marts.
 
 This stateful, metadata-driven approach makes the pipeline resumable and idempotent at a process level.
 

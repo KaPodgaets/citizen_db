@@ -22,10 +22,11 @@ Each file contains a list of all historical versions for that dataset. The struc
 
 Example (`contracts/citizens.yml`):
 ```yaml
-- version: '2024-01-01'
-  column_mapping:
-    'תעודת זהות': 'citizen_id'
-    # ... etc
+'2024-01-01':
+  'תעודת זהות': citizen_id
+  'שם פרטי': first_name
+  'שם משפחה': last_name
+  # ... etc
 ```
 
 ## Behavior
