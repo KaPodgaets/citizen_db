@@ -1,5 +1,5 @@
-import pandera as pa
-from pandera import Column, DataFrameSchema, Check
+import pandera.pandas as pa
+from pandera import Column, DataFrameSchema
 
 new_immigrants_schema = DataFrameSchema({
     "citizen_id": Column(pa.Int, nullable=False),

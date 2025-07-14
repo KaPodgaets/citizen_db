@@ -1,4 +1,4 @@
-import pandera as pa
+import pandera.pandas as pa
 from pandera import Column, DataFrameSchema
 
 welfare_patients_schema = DataFrameSchema({

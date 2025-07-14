@@ -1,0 +1,10 @@
+'2024-01-01':
+  'מספר מזהה': citizen_id
+  'מספר טלפון של המטופל': phone_number
+  'מספר טלפון של איש קשר': phone_number_contact_person
+
+
+# '2025-01-01':
+  # 'תעודת זהות': citizen_id
+  # 'שם פרטי': first_name
+    # maybe more fields or updated mappings

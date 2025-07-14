@@ -20,3 +20,8 @@ meser:
   filename_regex: '^meser_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
   contract: 'contracts/meser.yml'
   transform_script: 'src/transformations/scripts/transform_meser.py'
+
+hazramim:
+  filename_regex: '^hazramim_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/hazramim.yml'
+  transform_script: 'src/transformations/scripts/transform_hazramim.py'

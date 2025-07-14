@@ -1,5 +1,5 @@
 import pandera.pandas as pa
-from pandera.pandas import Column, DataFrameSchema, Check
+from pandera.pandas import Column, DataFrameSchema
 
 av_bait_schema = DataFrameSchema({
     "citizen_id": Column(pa.Int, nullable=False),
