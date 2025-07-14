@@ -66,6 +66,13 @@ with base as (
     from core.welfare_patients
     where is_current = 1
     group by citizen_id
+), hazramim_cte as (
+    select 
+        citizen_id
+        , 1 as is_hazramim
+    from 
+        core.hazramim
+    where is_current = 1
 ), phones as (
     select 
         citizen_id
@@ -116,13 +123,14 @@ SELECT
     MAX(CASE WHEN COALESCE(w.citizen_id, 0) > 0 THEN 1 ELSE 0 END) AS is_welfare_patient,
     0 as is_new_imigrant,           -- TODO: join to core.absorption
     0 as has_breath_troubles,       -- TODO: join to core.absorption
-    0 as is_hazramim,               -- TODO: join to core.absorption
+    MAX(CASE WHEN COALESCE(h.citizen_id, 0) > 0 THEN 1 ELSE 0 END) AS is_hazramim,               -- TODO: join to core.absorption
     /* phones */
     MAX(CASE WHEN p.rn = 1 THEN p.phone_number END) AS phone1,
     MAX(CASE WHEN p.rn = 2 THEN p.phone_number END) AS phone2,
     MAX(CASE WHEN p.rn = 3 THEN p.phone_number END) AS phone3
 FROM base as b
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id
+LEFT JOIN hazramim_cte AS h ON b.citizen_id = h.citizen_id
 LEFT JOIN phones AS p ON b.citizen_id = p.citizen_id
 GROUP BY
     b.citizen_id, b.first_name, b.last_name, b.age,

@@ -40,9 +40,9 @@ def check_mart_table_exists(conn):
     result = conn.execute(check_table_sql)
     table_exists = result.scalar() > 0
     if table_exists:
-        print('[publish][check_mart_table_exists]: Table mart.citizens exists')
+        print('[publish]: Table mart.citizens exists')
     else:
-        raise Exception('[publish][check_mart_table_exists] : [ERROR] : Table mart.citizens does not exist.')
+        raise Exception('[publish] : [ERROR] : Table mart.citizens does not exist.')
 
 # def delete_all_rows_from_mart_table(conn):
 #     try:

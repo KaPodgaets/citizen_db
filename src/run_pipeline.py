@@ -122,7 +122,9 @@ def trigger_transforms():
 
 def trigger_publish():
     """Triggers the publish script of datamart layer """
-    
+    print("[orchestrator] : Triggering publish script (publish.py)")
+    subprocess.run(['python', 'src/publish.py'], check=True)
+
 
 if __name__ == "__main__":
     print("--- Pipeline Orchestrator Starting ---")
