@@ -40,6 +40,7 @@ GO
 /* -------------------------------------------
 CLEANING data TABLES
 ------------------------------------------- */
+/* av_bait */
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'av_bait' AND schema_id = SCHEMA_ID('stage'))
 BEGIN
     delete from stage.av_bait;
@@ -51,7 +52,7 @@ BEGIN
     delete from core.av_bait;
 END
 GO
-
+/* welfare_patients */
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'welfare_patients' AND schema_id = SCHEMA_ID('stage'))
 BEGIN
     delete from stage.welfare_patients;
@@ -61,6 +62,26 @@ GO
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'welfare_patients' AND schema_id = SCHEMA_ID('core'))
 BEGIN
     delete from core.welfare_patients;
+END
+GO
+
+/* meser */
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'meser' AND schema_id = SCHEMA_ID('stage'))
+BEGIN
+    delete from stage.meser;
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'meser' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.meser;
+END
+GO
+
+/* phone_numbers */
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'phone_numbers' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.phone_numbers;
 END
 GO
 /* -------------------------------------------
