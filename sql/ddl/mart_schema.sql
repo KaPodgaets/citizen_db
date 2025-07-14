@@ -4,9 +4,9 @@ IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'mart')
 GO
 
 -- Citizens mart table
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'citizen' AND schema_id = SCHEMA_ID('mart'))
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'citizens' AND schema_id = SCHEMA_ID('mart'))
 BEGIN
-CREATE TABLE mart.citizen (
+CREATE TABLE mart.citizens (
     citizen_id INT NOT NULL,
     first_name NVARCHAR(255) NULL,
     last_name NVARCHAR(255) NOT NULL,
