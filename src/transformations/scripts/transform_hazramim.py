@@ -89,6 +89,7 @@ def main(dataset: str, period: str):
         available_columns = [col for col in selected_columns if col in staging_df.columns]
         phone_df = staging_df[available_columns]
         
+        
         # Transform to citizen_id, phone_number format by melting the DataFrame
         if not phone_df.empty and len(available_columns) > 1:  # Check if we have phone columns
             # Melt the DataFrame to convert phone columns to rows
@@ -96,9 +97,12 @@ def main(dataset: str, period: str):
                 id_vars=['citizen_id'], 
                 value_vars=phone_cols_to_drop,
                 var_name='phone_type', 
-                value_name='phone_number'
+                value_name='phone_number_citizen'
             )
-            
+
+            # rename column to run unpivot
+            phone_df = phone_df.rename(columns={'phone_number_citizen': 'phone_number'})
+
             # Remove rows where phone_number is null/empty
             phone_df = phone_df.dropna(subset=['phone_number'])
             phone_df = phone_df[phone_df['phone_number'].astype(str).str.strip() != '']

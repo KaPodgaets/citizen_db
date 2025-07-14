@@ -69,7 +69,7 @@ with base as (
 ), hazramim_cte as (
     select 
         citizen_id
-        1 as is_hazramim
+        , 1 as is_hazramim
     from 
         core.hazramim
     where is_current = 1
@@ -130,7 +130,7 @@ SELECT
     MAX(CASE WHEN p.rn = 3 THEN p.phone_number END) AS phone3
 FROM base as b
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id
-LEFT JOIN hazramim AS h ON b.citizen_id = h.citizen_id
+LEFT JOIN hazramim_cte AS h ON b.citizen_id = h.citizen_id
 LEFT JOIN phones AS p ON b.citizen_id = p.citizen_id
 GROUP BY
     b.citizen_id, b.first_name, b.last_name, b.age,

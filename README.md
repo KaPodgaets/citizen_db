@@ -15,6 +15,7 @@
 python src/ingest.py --file-path data/land/av_bait_2025-06_v-01.xlsx
 python src/ingest.py --file-path data/land/welfare_patients_2025-06_v-01.xlsx
 python src/ingest.py --file-path data/land/meser_2025-06_v-01.xlsx
+python src/ingest.py --file-path data/land/hazramim_2025-05_v-01.xlsx
 python src/run_pipeline.py
 ```
 -step 2 - after run commands, check the DB status
@@ -41,7 +42,6 @@ yamllint your_file.yml
 - Source files to add
     - Klita CRM
     - Breath Troubles
-    - Hazramim
     - Hamal Results (from Hamal App)
     - Arnona clients
 - Source files to add in far future 

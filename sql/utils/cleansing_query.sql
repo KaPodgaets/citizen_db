@@ -78,6 +78,19 @@ BEGIN
 END
 GO
 
+/* hazramim */
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'hazramim' AND schema_id = SCHEMA_ID('stage'))
+BEGIN
+    delete from stage.hazramim;
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'hazramim' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.hazramim;
+END
+GO
+
 /* phone_numbers */
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'phone_numbers' AND schema_id = SCHEMA_ID('core'))
 BEGIN
