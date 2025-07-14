@@ -1,9 +1,12 @@
--- Idempotent DDL for mart schema (MS SQL)
+-- Idempotent DDL for stage schema (MS SQL)
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'mart')
     EXEC('CREATE SCHEMA mart');
 GO
--- Example: citizen_mart_fact table (customize columns as needed)
-CREATE TABLE IF NOT EXISTS mart.citizen (
+
+-- Citizens mart table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'citizen' AND schema_id = SCHEMA_ID('mart'))
+BEGIN
+CREATE TABLE mart.citizen (
     citizen_id INT NOT NULL,
     first_name NVARCHAR(255) NULL,
     last_name NVARCHAR(255) NOT NULL,
@@ -22,4 +25,6 @@ CREATE TABLE IF NOT EXISTS mart.citizen (
     phone1 NVARCHAR(20) NULL,
     phone2 NVARCHAR(20) NULL,
     phone3 NVARCHAR(20) NULL
-);
+)
+END
+GO
