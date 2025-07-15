@@ -73,7 +73,7 @@ def main(dataset: str, period: str):
         if existing_cols_to_drop:
             staging_df_to_core = staging_df.drop(columns=existing_cols_to_drop)
 
-        phone_cols_to_drop = ['citizen_phone_number_1', 'citizen_phone_number_2']
+        phone_cols_to_drop = ['phone_number', 'phone_number_contact_person']
         existing_cols_to_drop = [col for col in phone_cols_to_drop if col in staging_df.columns]
         if existing_cols_to_drop:
             staging_df_to_core = staging_df_to_core.drop(columns=existing_cols_to_drop)
@@ -97,8 +97,11 @@ def main(dataset: str, period: str):
                 id_vars=['citizen_id'], 
                 value_vars=phone_cols_to_drop,
                 var_name='phone_type', 
-                value_name='phone_number'
+                value_name='phone_number_citizen'
             )
+
+            # rename column to run unpivot
+            phone_df = phone_df.rename(columns={'phone_number': 'phone_number_citizen'})
 
             # Remove rows where phone_number is null/empty
             phone_df = phone_df.dropna(subset=['phone_number'])
