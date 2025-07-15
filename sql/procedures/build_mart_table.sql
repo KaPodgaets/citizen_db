@@ -22,6 +22,7 @@ IF OBJECT_ID('tempdb..#citizens_work') IS NOT NULL
 /* Work table mirrors target */
 CREATE TABLE #citizens_work
 (
+    fake_citizen_id       BIGINT NOT NULL,
     citizen_id            INT           PRIMARY KEY,
     first_name            NVARCHAR(255),
     last_name             NVARCHAR(255),
@@ -59,6 +60,10 @@ with base as (
         , family_index_number
     from core.av_bait avb
     where is_current = 1
+), fake_ids as (
+    select citizen_id
+    , fake_citizen_id
+    from core.fake_citizen_id
 ), welfare_patients_cte as (
     select
         citizen_id
@@ -100,6 +105,7 @@ with base as (
 )
 
 INSERT INTO #citizens_work (
+    fake_citizen_id,
     citizen_id,
     first_name,
     last_name,
@@ -120,6 +126,7 @@ INSERT INTO #citizens_work (
     phone3
 )
 SELECT
+    fid.fake_citizen_id,
     b.citizen_id,
     b.first_name,
     b.last_name,
@@ -143,13 +150,14 @@ SELECT
     MAX(CASE WHEN p.rn = 2 THEN p.phone_number END) AS phone2,
     MAX(CASE WHEN p.rn = 3 THEN p.phone_number END) AS phone3
 FROM base as b
+LEFT JOIN fake_ids AS fid ON b.citizen_id = fid.citizen_id
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id
 LEFT JOIN new_immigrants_cte AS ni ON b.citizen_id = ni.citizen_id
 LEFT JOIN hazramim_cte AS h ON b.citizen_id = h.citizen_id
 LEFT JOIN breath_troubles_cte AS bt ON b.citizen_id = bt.citizen_id
 LEFT JOIN phones AS p ON b.citizen_id = p.citizen_id
 GROUP BY
-    b.citizen_id, b.first_name, b.last_name, b.age,
+    fid.fake_citizen_id, b.citizen_id, b.first_name, b.last_name, b.age,
     b.street_name, b.street_code, b.building_number,
     b.apartment_number, b.family_index_number,
     w.is_welfare_patient;

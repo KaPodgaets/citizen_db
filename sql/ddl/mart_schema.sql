@@ -7,6 +7,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'citizens' AND schema_id = SCHEMA_ID('mart'))
 BEGIN
 CREATE TABLE mart.citizens (
+    fake_citizen_id BIGINT NOT NULL,
     citizen_id INT NOT NULL,
     first_name NVARCHAR(255) NULL,
     last_name NVARCHAR(255) NOT NULL,

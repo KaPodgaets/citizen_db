@@ -49,7 +49,7 @@ def main(dataset: str, period: str):
             core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
             delete_stmt = core_table.delete()
             conn.execute(delete_stmt)
-            print(f"Deleted data for from core table")
+            print("Deleted data for from core table")
         except Exception as e:
             print(f"Could not delete old data, perhaps schema not updated yet? Error: {e}")
 
@@ -74,6 +74,45 @@ def main(dataset: str, period: str):
         
         staging_df.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
         print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
+
+        # update fake_citizen_id table
+        run_update_fake_id_table(conn)
+
+
+def run_update_fake_id_table(conn):
+    """We need this table to be related to HAMAL applicaiton which uses only FID values to identify citizens"""
+    print('[LOG][update_fake_ids]: executing procedure `fid_update`')
+    with open('sql/procedures/fid_update.sql', 'r', encoding='utf-8') as f:
+        sql = f.read()
+    sql_query = text(sql)
+    try:
+        conn.execute(sql_query)
+        print('[LOG][update_fake_ids]: `table fake_id was updated succesfully`')
+    except Exception as e:
+        raise Exception(f'[ERR][update_fake_ids] : {e}')
+
+def save_fake_id_table_as_snapshot(conn):
+    """Saving xlsx file as snapshot to backfill dictionary in case of full restart the system"""
+    import pandas as pd
+    from datetime import datetime
+    import os
+    print('[LOG][fake_id_snapshot]: start snapshoting the table `fid_update`')
+    sql_query = text('''
+                    select 
+                        citizen_id
+                        , fake_citizen_id
+                    from core.fake_id
+                ''')
+    try:
+        df = pd.read_sql(sql_query, conn)
+        # Ensure the directory exists
+        os.makedirs('data/snapshots/', exist_ok=True)
+        today_str = datetime.today().strftime('%Y-%m-%d')
+        file_path = f'data/snapshots/fake_id-{today_str}.xlsx'
+        df.to_excel(file_path, index=False)
+        print(f'[LOG][fake_id_snapshot]: Saved snapshot to {file_path}')
+    except Exception as e:
+        raise Exception(f'[ERR][fake_id_snapshot] : {e}')
 
 
 if __name__ == "__main__":

@@ -97,6 +97,13 @@ BEGIN
     delete from core.phone_numbers;
 END
 GO
+
+/* fake citizen id */
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'fake_citizen_id' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.fake_citizen_id;
+END
+GO
 /* -------------------------------------------
 CLEANING MART LAYER
 ------------------------------------------- */
@@ -104,4 +111,11 @@ IF EXISTS (SELECT * FROM sys.tables WHERE name = 'citizens' AND schema_id = SCHE
 BEGIN
     delete from mart.citizens;
 END
+GO
+/* -------------------------------------------
+SEQUENCE RESTART
+------------------------------------------- */
+/* Restart the existing sequence at a new starting value */
+ALTER SEQUENCE core.seq_fake_citizen_id
+    RESTART WITH 1000000;          -- choose any bigint you need
 GO
