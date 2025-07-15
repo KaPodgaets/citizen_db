@@ -35,7 +35,7 @@ def main(dataset: str, period: str):
             return
         
         # Step 2: Load current core data (only current)
-        core_df = pd.read_sql("SELECT * FROM core.hamal", conn)
+        core_df = pd.read_sql(f"SELECT * FROM {core_schema}.{dataset}", conn)
 
         # 3. Drop duplicates if any (based on citizen_fid + file_name)
         stage_df['key'] = stage_df['citizen_fid'].astype(str) + '|' + stage_df['file_name']
