@@ -1,7 +1,7 @@
 import pandera.pandas as pa
 from pandera import Column, DataFrameSchema
 
-hazramim_schema = DataFrameSchema({
+hamal_schema = DataFrameSchema({
     "citizen_fid": Column(pa.Int, nullable=False),
     "file_name": Column(pa.String, nullable=False),
     "is_answered_the_call": Column(pa.Bool, nullable=False),

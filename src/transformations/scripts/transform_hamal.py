@@ -20,7 +20,7 @@ def main(dataset: str, period: str):
 
     with engine.begin() as conn:
         # 1. Check is there already dataset
-        set_new_active_dataset_version(conn, dataset, period)
+        set_new_active_dataset_version(dataset, period)
 
         # 2. Load from stage, add version id, insert into core
         staging_table_name = dataset
@@ -74,11 +74,12 @@ def main(dataset: str, period: str):
         if existing_cols_to_drop:
             transformed_df_to_core = full_df.drop(columns=existing_cols_to_drop)
 
-  
-        transformed_df_to_core.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
-        full_df.to_sql(name='hamal', con=conn, schema='core', if_exists='append', index=False)
+        try:
+            transformed_df_to_core.to_sql(name='hamal', con=conn, schema='core', if_exists='append', index=False)
+        except Exception as e:
+            raise Exception(f'[ERR]: Error while inserting data into core.hamal. {e}')
 
-        print(f"[LOG]: Transformed hamal table with {len(full_df)} rows; {len(latest_period_idx)} marked as is_current = 1")
+        print(f"[LOG]: Transformed hamal table with {len(transformed_df_to_core)} rows; {len(latest_period_idx)} marked as is_current = 1")
 
 
 

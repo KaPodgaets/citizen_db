@@ -33,5 +33,5 @@ breath_troubles:
 
 hamal:
   filename_regex: '^hamal_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
-  contract: 'contracts/breath_troubles.yml'
-  transform_script: 'src/transformations/scripts/transform_breath_troubles.py'
+  contract: 'contracts/hamal.yml'
+  transform_script: 'src/transformations/scripts/transform_hamal.py'

@@ -9,7 +9,7 @@ from src.utils.db import get_engine
 
 
 @global_error_handler('transform')
-def main(dataset: str, period: str):
+def set_new_active_dataset_version(dataset: str, period: str):
     engine = get_engine()
 
     with engine.begin() as conn:
