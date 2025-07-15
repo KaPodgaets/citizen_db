@@ -66,9 +66,25 @@ def main(dataset: str, period: str):
         if staging_df.empty:
             print(f"No data found in stage.{staging_table_name} for period {period}. Nothing to transform.")
             return
-
+        
+        # Convert is_left_the_city from string to boolean and filter out rows where it is True
+        if 'is_left_the_city' in staging_df.columns:
+            # Convert to boolean: treat 'true', 'True', '1', 1 as True; else False
+            staging_df['is_left_the_city'] = staging_df['is_left_the_city'].astype(str).str.lower().isin(['true', '1'])
+            # Drop rows where is_left_the_city is True
+            staging_df = staging_df[~staging_df['is_left_the_city']]
+        
+        # Drop the records with duplicated value in column 'citizen_id' and print in terminal the warning about it
+        if 'citizen_id' in staging_df.columns:
+            duplicated = staging_df[staging_df.duplicated('citizen_id', keep=False)]
+            if not duplicated.empty:
+                print(f"Warning: Dropping {duplicated.shape[0]} records with duplicated citizen_id values.")
+                # Optionally, print the duplicated citizen_ids:
+                print("Duplicated citizen_ids:", duplicated['citizen_id'].unique())
+            staging_df = staging_df.drop_duplicates(subset=['citizen_id'], keep='first')
+        
         # WARNING! it's important here to modify tables exactly as in ddl sql script is
-        metadata_cols_to_drop = ['_data_period', '_source_parquet_path']
+        metadata_cols_to_drop = ['_data_period', '_source_parquet_path', 'is_left_the_city']
         existing_cols_to_drop = [col for col in metadata_cols_to_drop if col in staging_df.columns]
         if existing_cols_to_drop:
             staging_df_to_core = staging_df.drop(columns=existing_cols_to_drop)

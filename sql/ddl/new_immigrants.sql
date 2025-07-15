@@ -29,9 +29,6 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'new_immigrants' AND schema
 BEGIN
     CREATE TABLE core.new_immigrants (
         citizen_id INT PRIMARY KEY,
-        citizen_phone_number_1 NVARCHAR(200) NULL,
-        citizen_phone_number_2 NVARCHAR(200) NULL,
-        is_left_the_city NVARCHAR(200) NULL,
         is_current INT NOT NULL
     );
 END
