@@ -42,7 +42,6 @@ yamllint your_file.yml
 # Evaluation plans
 ## TODO list
 - Source files to add
-    - Klita CRM
     - Hamal Results (from Hamal App)
     - Arnona clients
 - Source files to add in far future 

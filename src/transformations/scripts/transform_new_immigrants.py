@@ -70,7 +70,7 @@ def main(dataset: str, period: str):
         # Convert is_left_the_city from string to boolean and filter out rows where it is True
         if 'is_left_the_city' in staging_df.columns:
             # Convert to boolean: treat 'true', 'True', '1', 1 as True; else False
-            staging_df['is_left_the_city'] = staging_df['is_left_the_city'].astype(str).str.lower().isin(['true', '1'])
+            staging_df['is_left_the_city'] = staging_df['is_left_the_city'].astype(str).str.lower().isin(['כן', '1'])
             # Drop rows where is_left_the_city is True
             staging_df = staging_df[~staging_df['is_left_the_city']]
         
