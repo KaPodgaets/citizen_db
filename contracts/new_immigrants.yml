@@ -1,14 +1,8 @@
 '2024-01-01':
   'תעודת זהות': citizen_id
-  'שם פרטי': first_name
-  'שם משפחה': last_name
-  'תאריך לידה': birth_date
-  'גיל': age
-  'מגדר': gender
-  'שם רחוב': street_name
-  'סמל רחוב': street_code
-  'מספר בית': building_number
-  'מספר דירה': apartment_number 
+  'טלפון': citizen_phone_number_1
+  'טלפון נוסף': citizen_phone_number_2
+  'עזב את הארץ או את העיר': is_left_the_city
 
 # '2025-01-01':
   # 'תעודת זהות': citizen_id

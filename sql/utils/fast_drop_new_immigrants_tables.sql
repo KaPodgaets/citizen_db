@@ -1,15 +1,15 @@
 IF EXISTS (SELECT * FROM sys.tables t 
            INNER JOIN sys.schemas s ON t.schema_id = s.schema_id 
-           WHERE t.name = 'av_bait' AND s.name = 'stage')
+           WHERE t.name = 'new_immigrants' AND s.name = 'stage')
 BEGIN
-    DROP TABLE stage.av_bait;
+    DROP TABLE stage.new_immigrants;
 END
 GO
 
 IF EXISTS (SELECT * FROM sys.tables t 
            INNER JOIN sys.schemas s ON t.schema_id = s.schema_id 
-           WHERE t.name = 'av_bait' AND s.name = 'core')
+           WHERE t.name = 'new_immigrants' AND s.name = 'core')
 BEGIN
-    drop table core.av_bait;
+    drop table core.new_immigrants;
 END
 GO

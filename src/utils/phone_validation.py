@@ -22,37 +22,43 @@ def validate_and_format_israeli_phone(phone_str):
     """
     if pd.isna(phone_str):
         return None, None
-    
-    # Convert to string and clean
-    phone = str(phone_str).strip()
-    
-    # Remove any existing dashes, spaces, or other separators
-    phone = re.sub(r'[^\d]', '', phone)
-    
-    # Israeli phone number patterns:
-    # 05X-XXXXXXX (mobile: 10 digits total)
-    # 0X-XXXXXXX (home: 9 digits total) 
-    # 077-XXXXXXX (digital: 10 digits total)
-    
-    mobile_pattern = r'^05[0-9](\d{7})$'  # 05X + 7 digits
-    home_pattern = r'^0[1-9](\d{7})$'     # 0X + 7 digits (X != 0)
-    digital_pattern = r'^077(\d{7})$'     # 077 + 7 digits
-    
-    # Check patterns and format
-    if re.match(mobile_pattern, phone):
-        match = re.match(mobile_pattern, phone)
-        formatted = f"05{phone[2]}-{match.group(1)}"
-        return formatted, 'mobile'
-    elif re.match(home_pattern, phone):
-        match = re.match(home_pattern, phone)
-        formatted = f"0{phone[1]}-{match.group(1)}"
-        return formatted, 'home'
-    elif re.match(digital_pattern, phone):
-        match = re.match(digital_pattern, phone)
-        formatted = f"077-{match.group(1)}"
-        return formatted, 'digital'
-    else:
+
+    # Clean the input: remove all non-digit characters
+    phone = re.sub(r'[^\d]', '', str(phone_str).strip())
+
+    if not phone.isdigit():
         return None, None
+
+    # Normalize mobile (05x)
+    if re.match(r'^05\d{8}$', phone):
+        return f'{phone[:3]}-{phone[3:]}', 'mobile'
+
+    # Normalize digital (077)
+    if re.match(r'^077\d{7}$', phone):
+        return f'{phone[:3]}-{phone[3:]}', 'digital'
+
+    # Normalize home (01–09, but not 05 or 077)
+    if re.match(r'^0[2-4,6-9]\d{7}$', phone):
+        return f'{phone[:2]}-{phone[2:]}', 'home'
+    if re.match(r'^[2-4,6-9]\d{6}$', phone):  # local number, like 2123456
+        return f'0{phone[0]}-{phone[1:]}', 'home'
+
+    # Edge case: already dashed short mobile format like 5x-xxxxxxx
+    if re.match(r'^5\d-\d{7}$', phone_str):
+        cleaned = phone.replace('-', '')
+        return f'{cleaned[:3]}-{cleaned[3:]}', 'mobile'
+
+    # Edge case: already dashed short home format like 2-xxxxxxx
+    if re.match(r'^[2-4,6-9]-\d{7}$', phone_str):
+        cleaned = phone.replace('-', '')
+        return f'0{cleaned[0]}-{cleaned[1:]}', 'home'
+
+    # Edge case: 77-xxxxxxx
+    if re.match(r'^77-\d{7}$', phone_str):
+        cleaned = phone.replace('-', '')
+        return f'077-{cleaned[2:]}', 'digital'
+
+    return None, None
 
 
 def process_israeli_phone_numbers(phone_df, phone_number_column='phone_number'):

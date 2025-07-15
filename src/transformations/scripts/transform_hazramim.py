@@ -101,7 +101,7 @@ def main(dataset: str, period: str):
             )
 
             # rename column to run unpivot
-            phone_df = phone_df.rename(columns={'phone_number_citizen': 'phone_number'})
+            phone_df = phone_df.rename(columns={'phone_number': 'phone_number_citizen'})
 
             # Remove rows where phone_number is null/empty
             phone_df = phone_df.dropna(subset=['phone_number'])

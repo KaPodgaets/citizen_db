@@ -14,6 +14,7 @@
 ```bash
 python src/ingest.py --file-path data/land/av_bait_2025-06_v-01.xlsx
 python src/ingest.py --file-path data/land/welfare_patients_2025-06_v-01.xlsx
+python src/ingest.py --file-path data/land/new_immigrants_2024-12_v-01.xlsx
 python src/ingest.py --file-path data/land/meser_2025-06_v-01.xlsx
 python src/ingest.py --file-path data/land/hazramim_2025-05_v-01.xlsx
 python src/ingest.py --file-path data/land/breath_troubles_2025-06_v-01.xlsx
@@ -42,7 +43,6 @@ yamllint your_file.yml
 ## TODO list
 - Source files to add
     - Klita CRM
-    - Breath Troubles
     - Hamal Results (from Hamal App)
     - Arnona clients
 - Source files to add in far future 
