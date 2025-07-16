@@ -4,48 +4,26 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 import pandas as pd
 from sqlalchemy import MetaData, Table, text
+import argparse
+
 from src.transformations.error_handling import global_error_handler
 from src.utils.db import get_engine
 from src.utils.phone_validation import process_israeli_phone_numbers
-import argparse
-from datetime import datetime
+from src.utils.metadata_helpers import set_new_active_dataset_version
+
 
 
 @global_error_handler('transform')
-def main(dataset: str, period: str):
+def main(dataset: str, period: str, version: int):
     engine = get_engine()
     metadata = MetaData()
     core_schema = "core"
 
     with engine.begin() as conn:
-        # 1. Check is there already dataset
-        find_old_versions_sql = text("""
-            SELECT id FROM meta.dataset_version
-            WHERE dataset_name = :dataset AND is_active = 1
-        """)
-        current_dataset_version_raw = conn.execute(find_old_versions_sql, {"dataset": dataset}).fetchall()
-        id_of_current_dataset = [row[0] for row in current_dataset_version_raw]
+        # 1. Change data in meta table dataset_version (new record with is_active = 1)
+        set_new_active_dataset_version(dataset, period, version)
         
-        # If current version exists, set is_current = 0
-        if id_of_current_dataset:
-            update_current_sql = text("""
-                UPDATE meta.dataset_version 
-                SET is_active = 0 
-                WHERE id = :id
-            """)
-            conn.execute(update_current_sql, {"id": id_of_current_dataset[0]})
-            print(f"Set is_active = 0 for previous version ID: {id_of_current_dataset[0]}")
-
-        # 2. Create a new current period record for dataset
-        insert_version_sql = text("""
-            INSERT INTO meta.dataset_version (dataset_name, period, created_at, is_active)
-            VALUES (:dataset, :period, :now, 1)
-        """)
-        conn.execute(insert_version_sql, {"dataset": dataset, "period": period, "now": datetime.now()})
-        
-
-        # 3. delete data from core table
-        
+        # 2. delete data from core table
         try:
             core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
             delete_stmt = core_table.delete()
@@ -120,12 +98,12 @@ def main(dataset: str, period: str):
             print("No phone columns found or DataFrame is empty")
             return
         
-        phone_df['dataset_name'] = dataset
+        phone_df['dataset'] = dataset
 
 
         # clean core.phone_numbers from previous data
         delete_query_sql = text("""
-            DELETE FROM core.phone_numbers WHERE dataset_name = :dataset
+            DELETE FROM core.phone_numbers WHERE dataset = :dataset
         """)
         conn.execute(delete_query_sql, {"dataset": dataset})
         # append new data
@@ -138,5 +116,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Transform data from stage to core for a specific dataset and period using a rebuild strategy.")
     parser.add_argument("--dataset", type=str, required=True, help="Dataset name to process (e.g., 'av_bait').")
     parser.add_argument("--period", type=str, required=True, help="Period to process (e.g., '2025-07').")
+    parser.add_argument("--version", type=int, required=True, help="Version to process (should be just int, e.g. 1)")
     args = parser.parse_args()
-    main(dataset=args.dataset, period=args.period)
+    main(dataset=args.dataset, period=args.period, version=args.version) 

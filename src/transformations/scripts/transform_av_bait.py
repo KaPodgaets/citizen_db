@@ -3,53 +3,30 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 import pandas as pd
-from sqlalchemy import MetaData, Table, text
-from src.transformations.error_handling import global_error_handler
-from src.utils.db import get_engine
 import argparse
+from sqlalchemy import MetaData, Table, text
 from datetime import datetime
 
+from src.transformations.error_handling import global_error_handler
+from src.utils.db import get_engine
+from src.utils.metadata_helpers import set_new_active_dataset_version
 
 @global_error_handler('transform')
-def main(dataset: str, period: str):
+def main(dataset: str, period: str, version: int):
     engine = get_engine()
     metadata = MetaData()
     core_schema = "core"
 
     with engine.begin() as conn:
-        # 1. Check is there already dataset
-        find_old_versions_sql = text("""
-            SELECT id FROM meta.dataset_version
-            WHERE dataset_name = :dataset AND is_active = 1
-        """)
-        current_dataset_version_raw = conn.execute(find_old_versions_sql, {"dataset": dataset}).fetchall()
-        id_of_current_dataset = [row[0] for row in current_dataset_version_raw]
+        # 1. Change data in meta table dataset_version (new record with is_active = 1)
+        set_new_active_dataset_version(dataset, period, version)
         
-        # If current version exists, set is_current = 0
-        if id_of_current_dataset:
-            update_current_sql = text("""
-                UPDATE meta.dataset_version 
-                SET is_active = 0 
-                WHERE id = :id
-            """)
-            conn.execute(update_current_sql, {"id": id_of_current_dataset[0]})
-            print(f"Set is_active = 0 for previous version ID: {id_of_current_dataset[0]}")
-
-        # 2. Create a new current period record for dataset
-        insert_version_sql = text("""
-            INSERT INTO meta.dataset_version (dataset_name, period, created_at, is_active)
-            VALUES (:dataset, :period, :now, 1)
-        """)
-        conn.execute(insert_version_sql, {"dataset": dataset, "period": period, "now": datetime.now()})
-        
-
-        # 3. delete data from core table
-        
+        # 2. delete data from core table
         try:
             core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
             delete_stmt = core_table.delete()
             conn.execute(delete_stmt)
-            print(f"Deleted data for from core table")
+            print("Deleted data for from core table")
         except Exception as e:
             print(f"Could not delete old data, perhaps schema not updated yet? Error: {e}")
 
@@ -75,10 +52,50 @@ def main(dataset: str, period: str):
         staging_df.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
         print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
 
+        # update fake_citizen_id table
+        run_update_fake_id_table(conn)
+        save_fake_id_table_as_snapshot(conn)
+
+
+def run_update_fake_id_table(conn):
+    """We need this table to be related to HAMAL applicaiton which uses only FID values to identify citizens"""
+    print('[LOG][update_fake_ids]: executing procedure `fid_update`')
+    with open('sql/procedures/fid_update.sql', 'r', encoding='utf-8') as f:
+        sql = f.read()
+    sql_query = text(sql)
+    try:
+        conn.execute(sql_query)
+        print('[LOG][update_fake_ids]: `table fake_id was updated succesfully`')
+    except Exception as e:
+        raise Exception(f'[ERR][update_fake_ids] : {e}')
+
+def save_fake_id_table_as_snapshot(conn):
+    """Saving xlsx file as snapshot to backfill dictionary in case of full restart the system"""
+    import pandas as pd
+    import os
+    print('[LOG][fake_id_snapshot]: start snapshoting the table `fid_update`')
+    sql_query = text('''
+                    select 
+                        citizen_id
+                        , fake_citizen_id
+                    from core.fake_citizen_ids
+                ''')
+    try:
+        df = pd.read_sql(sql_query, conn)
+        # Ensure the directory exists
+        os.makedirs('data/snapshots/', exist_ok=True)
+        today_str = datetime.today().strftime('%Y-%m-%d')
+        file_path = f'data/snapshots/fake_id-{today_str}.xlsx'
+        df.to_excel(file_path, index=False)
+        print(f'[LOG][fake_id_snapshot]: Saved snapshot to {file_path}')
+    except Exception as e:
+        raise Exception(f'[ERR][fake_id_snapshot] : {e}')
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Transform data from stage to core for a specific dataset and period using a rebuild strategy.")
     parser.add_argument("--dataset", type=str, required=True, help="Dataset name to process (e.g., 'av_bait').")
     parser.add_argument("--period", type=str, required=True, help="Period to process (e.g., '2025-07').")
+    parser.add_argument("--version", type=int, required=True, help="Version to process (should be just int, e.g. 1)")
     args = parser.parse_args()
-    main(dataset=args.dataset, period=args.period) 
+    main(dataset=args.dataset, period=args.period, version=args.version) 

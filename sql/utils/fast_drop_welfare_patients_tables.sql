@@ -14,9 +14,4 @@ BEGIN
 END
 GO
 
-IF EXISTS (SELECT * FROM sys.tables WHERE name = 'mart.welfare_patients')
-BEGIN
-    drop table mart.welfare_patients;
-END
-GO
 

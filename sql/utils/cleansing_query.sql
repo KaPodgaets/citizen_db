@@ -91,10 +91,30 @@ BEGIN
 END
 GO
 
+/* hamal */
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'hamal' AND schema_id = SCHEMA_ID('stage'))
+BEGIN
+    delete from stage.hamal;
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'hamal' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.hamal;
+END
+GO
+
 /* phone_numbers */
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'phone_numbers' AND schema_id = SCHEMA_ID('core'))
 BEGIN
     delete from core.phone_numbers;
+END
+GO
+
+/* fake citizen id */
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'fake_citizen_ids' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.fake_citizen_ids;
 END
 GO
 /* -------------------------------------------
@@ -104,4 +124,11 @@ IF EXISTS (SELECT * FROM sys.tables WHERE name = 'citizens' AND schema_id = SCHE
 BEGIN
     delete from mart.citizens;
 END
+GO
+/* -------------------------------------------
+SEQUENCE RESTART
+------------------------------------------- */
+/* Restart the existing sequence at a new starting value */
+ALTER SEQUENCE core.seq_fake_citizen_id
+    RESTART WITH 1;          -- choose any bigint you need
 GO

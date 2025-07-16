@@ -34,7 +34,7 @@ def main(file_path):
             headers = pd.read_excel(file_path, nrows=0).columns.tolist()
         else:
             raise ValueError(f"Unsupported file format: {file_extension}. Only .csv and .xlsx files are supported.")
-        
+    
     except Exception as e:
         print(f"Failed to read headers from file: {e}")
         return
@@ -54,18 +54,41 @@ def main(file_path):
     with engine.begin() as conn:
         result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
         if result.scalar() > 0:
-            print(f"File {file_name} already ingested (hash: {file_hash})")
+            print(f"[WAR]: File {file_name} already ingested (hash: {file_hash}). That means there is no changes in data")
             return
+        # Also check for duplicate (dataset, period, version)
+        result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE dataset = :dataset AND period = :period AND version = :version"), {"dataset": filename_metadata["dataset"], "period": filename_metadata["period"], "version": filename_metadata["version"]})
+        if result.scalar() > 0:
+            print(f"""[WAR]: A record with 
+                    dataset={filename_metadata['dataset']},
+                    period={filename_metadata['period']},
+                    version={filename_metadata['version']}
+                    already exists in ingestion_log.""")
+            return
+        # Check if the new file's version is less than the max version for the same dataset and period
+        max_version_result = conn.execute(text("SELECT MAX(version) FROM meta.ingestion_log WHERE dataset = :dataset AND period = :period"), {"dataset": filename_metadata["dataset"], "period": filename_metadata["period"]})
+        max_version_row = max_version_result.fetchone()
+        if max_version_row and max_version_row[0] is not None:
+            max_version = max_version_row[0]
+            if filename_metadata["version"] < max_version:
+                print(f"""
+                    [WAR]: The version of the new file ({filename_metadata['version']})
+                    is less than the max version ({max_version}) 
+                    for dataset={filename_metadata['dataset']} and period={filename_metadata['period']}.
+                    File will not be ingested.""")
+                return
+        
         # Insert log
         conn.execute(text("""
-            INSERT INTO meta.ingestion_log (file_name, file_hash, ingest_time, status, dataset_name, period)
-            VALUES (:file_name, :file_hash, :datetime_now, 'INGESTED', :dataset, :period)
+            INSERT INTO meta.ingestion_log (file_name, file_hash, ingest_time, status, dataset, period, version)
+            VALUES (:file_name, :file_hash, :datetime_now, 'INGESTED', :dataset, :period, :version)
         """), {
             "file_name": file_name,
             "file_hash": file_hash,
             "datetime_now": datetime.now(),
             "dataset": filename_metadata["dataset"],
-            "period": filename_metadata["period"]
+            "period": filename_metadata["period"],
+            "version": filename_metadata["version"]
         })
         
         file_id_result = conn.execute(text("select id from meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
@@ -75,6 +98,14 @@ def main(file_path):
             return
         file_id = row[0]
         print(f"Ingested {file_name} (hash: {file_hash}) file id - {file_id}")
+
+        # Mark previous records with the same dataset and period as OBSOLET
+        update_obsolet_sql = text("""
+            UPDATE meta.ingestion_log
+            SET status = 'OBSOLET'
+            WHERE dataset = :dataset AND period = :period AND file_hash != :file_hash
+        """)
+        conn.execute(update_obsolet_sql, {"dataset": filename_metadata["dataset"], "period": filename_metadata["period"], "file_hash": file_hash})
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ingest a new source file.")

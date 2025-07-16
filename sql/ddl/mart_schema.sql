@@ -7,6 +7,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'citizens' AND schema_id = SCHEMA_ID('mart'))
 BEGIN
 CREATE TABLE mart.citizens (
+    fake_citizen_id BIGINT NOT NULL,
     citizen_id INT NOT NULL,
     first_name NVARCHAR(255) NULL,
     last_name NVARCHAR(255) NOT NULL,
@@ -24,7 +25,10 @@ CREATE TABLE mart.citizens (
     is_hazramim BIT NOT NULL,
     phone1 NVARCHAR(20) NULL,
     phone2 NVARCHAR(20) NULL,
-    phone3 NVARCHAR(20) NULL
+    phone3 NVARCHAR(20) NULL,
+    is_in_hamal_batch BIT NOT NULL,
+    file_name_hamal NVARCHAR(255) NULL,
+    is_dead_hamal BIT NULL,
 )
 END
 GO

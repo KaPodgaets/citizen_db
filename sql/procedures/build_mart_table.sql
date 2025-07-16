@@ -22,6 +22,7 @@ IF OBJECT_ID('tempdb..#citizens_work') IS NOT NULL
 /* Work table mirrors target */
 CREATE TABLE #citizens_work
 (
+    fake_citizen_id       BIGINT NOT NULL,
     citizen_id            INT           PRIMARY KEY,
     first_name            NVARCHAR(255),
     last_name             NVARCHAR(255),
@@ -39,7 +40,10 @@ CREATE TABLE #citizens_work
     is_hazramim           BIT,
     phone1                NVARCHAR(20),
     phone2                NVARCHAR(20),
-    phone3                NVARCHAR(20)
+    phone3                NVARCHAR(20),
+    is_in_hamal_batch     BIT,
+    file_name_hamal       NVARCHAR(255),
+    is_dead_hamal         BIT,
 );
 
 ------------------------------------------------------------
@@ -59,6 +63,10 @@ with base as (
         , family_index_number
     from core.av_bait avb
     where is_current = 1
+), fake_ids as (
+    select citizen_id
+    , fake_citizen_id
+    from core.fake_citizen_ids
 ), welfare_patients_cte as (
     select
         citizen_id
@@ -97,9 +105,21 @@ with base as (
             ORDER BY type DESC, phone_number
         ) as rn
     from core.phone_numbers
+), hamal_cte as (
+    select  
+        h.citizen_fid as fake_citizen_id
+        , fid.citizen_id as citizen_id
+        , file_name
+        , is_dead
+        , 1 as is_in_hamal_batch
+    from core.hamal h
+    LEFT JOIN core.fake_citizen_ids AS fid ON h.citizen_fid = fid.fake_citizen_id
+    where 
+        is_current = 1
 )
 
 INSERT INTO #citizens_work (
+    fake_citizen_id,
     citizen_id,
     first_name,
     last_name,
@@ -117,9 +137,13 @@ INSERT INTO #citizens_work (
     is_hazramim,
     phone1,
     phone2,
-    phone3
+    phone3,
+    is_in_hamal_batch,
+    file_name_hamal,
+    is_dead_hamal
 )
 SELECT
+    fid.fake_citizen_id,
     b.citizen_id,
     b.first_name,
     b.last_name,
@@ -141,18 +165,25 @@ SELECT
     /* phones */
     MAX(CASE WHEN p.rn = 1 THEN p.phone_number END) AS phone1,
     MAX(CASE WHEN p.rn = 2 THEN p.phone_number END) AS phone2,
-    MAX(CASE WHEN p.rn = 3 THEN p.phone_number END) AS phone3
+    MAX(CASE WHEN p.rn = 3 THEN p.phone_number END) AS phone3,
+    /* hamal data */
+    MAX(CASE WHEN COALESCE(hml.is_in_hamal_batch, 0) > 0 THEN 1 ELSE 0 END) AS is_in_hamal_batch,
+    hml.file_name as file_name_hamal,
+    hml.is_dead as is_dead_hamal
 FROM base as b
+LEFT JOIN fake_ids AS fid ON b.citizen_id = fid.citizen_id
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id
 LEFT JOIN new_immigrants_cte AS ni ON b.citizen_id = ni.citizen_id
 LEFT JOIN hazramim_cte AS h ON b.citizen_id = h.citizen_id
 LEFT JOIN breath_troubles_cte AS bt ON b.citizen_id = bt.citizen_id
 LEFT JOIN phones AS p ON b.citizen_id = p.citizen_id
+LEFT JOIN hamal_cte AS hml ON b.citizen_id = hml.citizen_id
 GROUP BY
-    b.citizen_id, b.first_name, b.last_name, b.age,
+    fid.fake_citizen_id, b.citizen_id, b.first_name, b.last_name, b.age,
     b.street_name, b.street_code, b.building_number,
     b.apartment_number, b.family_index_number,
-    w.is_welfare_patient;
+    w.is_welfare_patient, 
+    hml.file_name, hml.is_dead;
 
 
 ------------------------------------------------------------
