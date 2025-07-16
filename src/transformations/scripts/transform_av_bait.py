@@ -78,7 +78,7 @@ def save_fake_id_table_as_snapshot(conn):
                     select 
                         citizen_id
                         , fake_citizen_id
-                    from core.fake_id
+                    from core.fake_citizen_ids
                 ''')
     try:
         df = pd.read_sql(sql_query, conn)
