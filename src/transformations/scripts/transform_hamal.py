@@ -47,7 +47,15 @@ def main(dataset: str, period: str, version: int):
 
         # 5. Prepare new rows
         new_rows = stage_df.copy()
-        new_rows['has_final_status'] = 1  # placeholder
+        # Calculate has_final_status: 1 if is_answered, is_dead, or is_left_the_city is True, else 0
+        for col in ['is_answered', 'is_dead', 'is_left_the_city']:
+            if col not in new_rows.columns:
+                new_rows[col] = 0
+        new_rows['has_final_status'] = (
+            new_rows['is_answered'].astype(bool) |
+            new_rows['is_dead'].astype(bool) |
+            new_rows['is_left_the_city'].astype(bool)
+        ).astype(int)
         new_rows['is_current'] = 0  # will compute next
 
         # 6. Combine remaining old records and new incoming ones
