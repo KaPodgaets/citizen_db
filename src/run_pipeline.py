@@ -56,17 +56,31 @@ def trigger_stage_load():
 def prepare_transforms():
     """Identifies new work for the transform step and creates PENDING records."""
     engine = get_engine()
-    
     with engine.connect() as conn:
-        # Find successful stage loads that don't have a PASS record in transform_log
-        # Join through: stage_load_log -> validation_log -> ingestion_log to get dataset info
+        # For each stage_load_log record:
+        # - with status 'PASS'
+        # - with status 'INGESTED' in ingestion_log table (through validation_log table)
+        # - with period and version greater than period and version of record with is_active = 1 from dataset_version table for the same dataset
         query = text("""
-            SELECT il.dataset, il.period
+            SELECT il.dataset_name, il.period, il.version, sll.id as stage_load_task_id
             FROM meta.stage_load_log sll
             JOIN meta.validation_log vl ON sll.validation_log_id = vl.id
             JOIN meta.ingestion_log il ON vl.file_id = il.id
-            LEFT JOIN meta.transform_log tl ON il.dataset = tl.dataset AND il.period = tl.period
-            WHERE sll.status = 'PASS' AND tl.status IS NULL
+            WHERE sll.status = 'PASS'
+              AND il.status = 'INGESTED'
+              AND (
+                  il.period > (
+                      SELECT dv.period FROM meta.dataset_version dv WHERE dv.dataset_name = il.dataset_name AND dv.is_active = 1
+                  )
+                  OR (
+                      il.period = (
+                          SELECT dv.period FROM meta.dataset_version dv WHERE dv.dataset_name = il.dataset_name AND dv.is_active = 1
+                      )
+                      AND il.version > (
+                          SELECT dv.version FROM meta.dataset_version dv WHERE dv.dataset_name = il.dataset_name AND dv.is_active = 1
+                      )
+                  )
+              )
         """)
         new_work = conn.execute(query).fetchall()
 
@@ -74,19 +88,22 @@ def prepare_transforms():
             print("No new transform tasks to create.")
             return
 
-        for dataset, period in new_work:
-            # Check if a 'FAIL' record already exists to avoid creating duplicates
-            check_query = text("SELECT id FROM meta.transform_log WHERE dataset = :d AND period = :p")
-            existing = conn.execute(check_query, {"d": dataset, "p": period}).fetchone()
+        for dataset_name, period, version, stage_load_task_id in new_work:
+            # Only create a new task if there is no record for the same stage_load_task_id
+            check_query = text("""
+                SELECT id FROM meta.transform_log 
+                WHERE stage_load_task_id = :stage_load_task_id
+            """)
+            existing = conn.execute(check_query, {"stage_load_task_id": stage_load_task_id}).fetchone()
             
             if not existing:
                 insert_query = text("""
-                    INSERT INTO meta.transform_log (dataset, period, status, retry_count)
-                    VALUES (:dataset, :period, 'PENDING', 0)
+                    INSERT INTO meta.transform_log (dataset_name, period, version, stage_load_task_id, status, retry_count)
+                    VALUES (:dataset, :period, :version, :stage_load_task_id, 'PENDING', 0)
                 """)
-                conn.execute(insert_query, {"dataset": dataset, "period": period})
+                conn.execute(insert_query, {"dataset": dataset_name, "period": period, "version": version, "stage_load_task_id": stage_load_task_id})
                 conn.commit()
-                print(f"Created PENDING transform task for {dataset}/{period}")
+                print(f"Created PENDING transform task for {dataset_name}/{period}/{version} (stage_load_task_id={stage_load_task_id})")
 
 
 def trigger_transforms():
@@ -96,7 +113,7 @@ def trigger_transforms():
         datasets_config = yaml.safe_load(f)
     
     # Find tasks that need to be run
-    query = text("SELECT id, dataset, period FROM meta.transform_log WHERE status = 'PENDING' OR (status = 'FAIL' AND retry_count < 1)")
+    query = text("SELECT id, dataset, period FROM meta.transform_log WHERE status = 'PENDING' OR (status = 'FAIL' AND retry_count < 2)")
     tasks_to_run = engine.connect().execute(query).fetchall()
 
     for task_id, dataset, period in tasks_to_run:

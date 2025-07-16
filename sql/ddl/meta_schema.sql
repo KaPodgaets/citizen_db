@@ -80,8 +80,10 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'transform_log' AND schema_
 BEGIN
     CREATE TABLE meta.transform_log (
         id INT IDENTITY(1,1) PRIMARY KEY,
+        stage_load_task_id INT NOT NULL,
         dataset NVARCHAR(255) NOT NULL,
         period VARCHAR(7) NOT NULL,
+        version INT NOT NULL,
         status NVARCHAR(50) NOT NULL, -- PENDING, PASS, FAIL
         retry_count INT DEFAULT 0,
         last_attempt_timestamp DATETIME2 DEFAULT GETDATE(),
