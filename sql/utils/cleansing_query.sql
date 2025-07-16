@@ -91,6 +91,19 @@ BEGIN
 END
 GO
 
+/* hamal */
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'hamal' AND schema_id = SCHEMA_ID('stage'))
+BEGIN
+    delete from stage.hamal;
+END
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'hamal' AND schema_id = SCHEMA_ID('core'))
+BEGIN
+    delete from core.hamal;
+END
+GO
+
 /* phone_numbers */
 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'phone_numbers' AND schema_id = SCHEMA_ID('core'))
 BEGIN

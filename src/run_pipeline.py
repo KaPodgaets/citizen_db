@@ -10,12 +10,18 @@ from datetime import datetime
 
 
 def trigger_validation():
-    """Finds ingested files and triggers the validation script for each."""
+    """Finds ingested files with status 'INGESTED' and triggers the validation script for each."""
     engine = get_engine()
     with engine.connect() as conn:
         query = text("""
-            SELECT id FROM meta.ingestion_log 
-            WHERE id NOT IN (SELECT file_id FROM meta.validation_log)
+            SELECT id 
+            FROM meta.ingestion_log 
+            WHERE 
+                status = 'INGESTED' 
+                AND id NOT IN (
+                    SELECT file_id 
+                    FROM meta.validation_log 
+                    where status != 'PASS')
         """)
         ingested_files = conn.execute(query).fetchall()
         for row in ingested_files:
