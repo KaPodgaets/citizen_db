@@ -86,7 +86,7 @@ def main(file_id):
                             # For other types, try to convert using pandas
                             validated_df[column_name] = validated_df[column_name].astype(str(expected_dtype))
                             
-                        print(f"Successfully cast column '{column_name}' to {expected_dtype}")
+                        # print(f"Successfully cast column '{column_name}' to {expected_dtype}")
                         
                     except Exception as cast_error:
                         raise ValueError(f"Failed to cast column '{column_name}' to expected type {expected_dtype}: {cast_error}")

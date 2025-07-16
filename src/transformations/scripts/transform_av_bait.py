@@ -54,6 +54,7 @@ def main(dataset: str, period: str, version: int):
 
         # update fake_citizen_id table
         run_update_fake_id_table(conn)
+        save_fake_id_table_as_snapshot(conn)
 
 
 def run_update_fake_id_table(conn):
