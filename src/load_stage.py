@@ -29,7 +29,7 @@ def main(validation_log_id: int):
         result = conn.execute(query, {"validation_log_id": validation_log_id}).fetchone()
 
     if not result:
-        print(f"No 'PASS' record found in meta.validation_log for id {validation_log_id}, or it was already processed.")
+        print(f"No 'PASS' record found in meta.validation_log for id {validation_log_id}")
         return
 
     file_name, dataset, period = result
@@ -56,6 +56,7 @@ def main(validation_log_id: int):
         
         with engine.begin() as conn:
             # 1. Delete existing data for the period (idempotency)
+            # We keep only 1 (the last) version of dataset+period key
             conn.execute(text(f"DELETE FROM stage.{target_table} WHERE _data_period = :period"), {"period": period})
             
             # 2. Append new data

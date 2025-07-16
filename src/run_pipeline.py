@@ -112,7 +112,7 @@ def prepare_transforms():
                 _, status = existing
                 if status == 'FAIL':
                     failed_tasks.append((dataset_name, period, version))
-                    
+
         for dataset_name, period, version in failed_tasks:
             print(f"""
                 [ALERT]: You MUST provide new data (file) for dataset '{dataset_name}' and period '{period}'
@@ -127,10 +127,10 @@ def trigger_transforms():
         datasets_config = yaml.safe_load(f)
     
     # Find tasks that need to be run
-    query = text("SELECT id, dataset, period FROM meta.transform_log WHERE status = 'PENDING' OR (status = 'FAIL' AND retry_count < 2)")
+    query = text("SELECT id, dataset, period, version FROM meta.transform_log WHERE status = 'PENDING' OR (status = 'FAIL' AND retry_count < 2)")
     tasks_to_run = engine.connect().execute(query).fetchall()
 
-    for task_id, dataset, period in tasks_to_run:
+    for task_id, dataset, period, version in tasks_to_run:
         script_path = datasets_config.get(dataset, {}).get('transform_script')
         if not script_path:
             error_msg = f"Transform script not defined for dataset '{dataset}' in datasets_config.yml"
@@ -140,16 +140,21 @@ def trigger_transforms():
                 conn.execute(update_query, {"err": error_msg, "id": task_id})
             continue
 
-        print(f"Triggering transform for {dataset}/{period} (Task ID: {task_id})")
+        print(f"Triggering transform for {dataset}/{period}/{version} (Task ID: {task_id})")
+        
         proc = subprocess.run(
-            ['python', script_path, '--dataset', dataset, '--period', period],
+            ['python', script_path, '--dataset', dataset, '--period', period, '--version', version],
             capture_output=True, text=True
         )
 
         with engine.begin() as conn:
             if proc.returncode == 0:
                 # Success
-                update_query = text("UPDATE meta.transform_log SET status = 'PASS', last_attempt_timestamp = :now, error_message = NULL WHERE id = :id")
+                update_query = text("""
+                    UPDATE 
+                        meta.transform_log SET status = 'PASS'
+                        , last_attempt_timestamp = :now
+                        , error_message = NULL WHERE id = :id""")
                 conn.execute(update_query, {"now": datetime.now(), "id": task_id})
                 print(f"Transform for {dataset}/{period} SUCCEEDED.")
             else:
