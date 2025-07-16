@@ -4,12 +4,17 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 from sqlalchemy import text
 from datetime import datetime
+
+from src.utils.db import get_engine
 from src.transformations.error_handling import global_error_handler
 
 
 @global_error_handler('transform')
-def set_new_active_dataset_version(conn, dataset: str, period: str, version: int):
-    with conn:
+def set_new_active_dataset_version(dataset: str, period: str, version: int):
+
+    engine = get_engine()
+    
+    with engine.begin() as conn:
         # 1. Check is there already dataset
         find_old_versions_sql = text("""
             SELECT id FROM meta.dataset_version

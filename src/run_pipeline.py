@@ -21,7 +21,7 @@ def trigger_validation():
                 AND id NOT IN (
                     SELECT file_id 
                     FROM meta.validation_log 
-                    where status != 'PASS')
+                    where status = 'PASS')
         """)
         ingested_files = conn.execute(query).fetchall()
         for row in ingested_files:
