@@ -26,7 +26,8 @@ BEGIN
         ingest_time DATETIME2 DEFAULT SYSDATETIME(),
         status NVARCHAR(20),
         dataset_name  NVARCHAR(255),
-        period NVARCHAR(20)
+        period NVARCHAR(20),
+        version INT
     );
 END
 GO

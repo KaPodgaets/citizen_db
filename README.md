@@ -32,6 +32,7 @@ python src/run_pipeline.py
 ```bash
 set PYTHONPATH=. && pytest tests/test_database_connection.py
 set PYTHONPATH=. && pytest tests/db_connection/test_database_connection.py
+set PYTHONPATH=. && pytest tests/file_parser_tests.py
 ```
 
 ## YAML

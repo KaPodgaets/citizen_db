@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-import urllib
 from src.utils.config import settings
 
 def test_database_connection(server: str, database: str):

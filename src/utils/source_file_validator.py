@@ -18,10 +18,15 @@ def parse_and_validate_filename(file_name: str, dataset_config_path: str = "data
             continue
         m = re.match(pattern, file_name)
         if m:
+            version_str = m.group('version')
+            try:
+                version = int(version_str)
+            except (TypeError, ValueError):
+                version = version_str  # fallback to original if conversion fails
             return {
                 'dataset': dataset,
                 'period': m.group('period'),
-                'version': m.group('version'),
+                'version': version,
                 'contract': rules.get('contract')
             }
     raise ValueError(f"Filename {file_name} does not match any known dataset pattern.")
