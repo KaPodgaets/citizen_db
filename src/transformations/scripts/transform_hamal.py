@@ -19,7 +19,7 @@ def main(dataset: str, period: str, version: int):
     core_schema = "core"
 
     with engine.begin() as conn:
-        # 1. Check is there already dataset
+        # 1. Change data in meta table dataset_version (new record with is_active = 1)
         set_new_active_dataset_version(conn, dataset, period, version)
 
         # 2. Load from stage, add version id, insert into core

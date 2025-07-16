@@ -5,14 +5,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 from sqlalchemy import text
 from datetime import datetime
 from src.transformations.error_handling import global_error_handler
-from src.utils.db import get_engine
 
 
 @global_error_handler('transform')
-def set_new_active_dataset_version(dataset: str, period: str):
-    engine = get_engine()
-
-    with engine.begin() as conn:
+def set_new_active_dataset_version(conn, dataset: str, period: str, version: int):
+    with conn:
         # 1. Check is there already dataset
         find_old_versions_sql = text("""
             SELECT id FROM meta.dataset_version
@@ -33,7 +30,7 @@ def set_new_active_dataset_version(dataset: str, period: str):
 
         # 2. Create a new current period record for dataset
         insert_version_sql = text("""
-            INSERT INTO meta.dataset_version (dataset, period, created_at, is_active)
-            VALUES (:dataset, :period, :now, 1)
+            INSERT INTO meta.dataset_version (dataset, period, version, created_at, is_active)
+            VALUES (:dataset, :period, :version, :now, 1)
         """)
-        conn.execute(insert_version_sql, {"dataset": dataset, "period": period, "now": datetime.now()})
+        conn.execute(insert_version_sql, {"dataset": dataset, "period": period, "version": version, "now": datetime.now()})
