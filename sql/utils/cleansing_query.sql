@@ -99,9 +99,9 @@ END
 GO
 
 /* fake citizen id */
-IF EXISTS (SELECT * FROM sys.tables WHERE name = 'fake_citizen_id' AND schema_id = SCHEMA_ID('core'))
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'fake_citizen_ids' AND schema_id = SCHEMA_ID('core'))
 BEGIN
-    delete from core.fake_citizen_id;
+    delete from core.fake_citizen_ids;
 END
 GO
 /* -------------------------------------------
@@ -117,5 +117,5 @@ SEQUENCE RESTART
 ------------------------------------------- */
 /* Restart the existing sequence at a new starting value */
 ALTER SEQUENCE core.seq_fake_citizen_id
-    RESTART WITH 1000000;          -- choose any bigint you need
+    RESTART WITH 1;          -- choose any bigint you need
 GO

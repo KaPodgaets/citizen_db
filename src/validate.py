@@ -17,12 +17,12 @@ def main(file_id):
     engine = get_engine()
     with engine.begin() as conn:
         # Get file info from ingestion_log
-        result = conn.execute(text("SELECT file_name, dataset_name, period FROM meta.ingestion_log WHERE id = :id"), {"id": file_id})
+        result = conn.execute(text("SELECT file_name, dataset, period FROM meta.ingestion_log WHERE id = :id"), {"id": file_id})
         row = result.fetchone()
         if not row:
             print(f"No file found for file_id {file_id}")
             return
-        file_name, dataset_name, period = row
+        file_name, dataset, period = row
         file_path = os.path.join("data/land", file_name)
         if not os.path.exists(file_path):
             print(f"File {file_path} does not exist")
@@ -31,7 +31,7 @@ def main(file_id):
         # Load contract config
         with open("datasets_config.yml", 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
-        contract_path = config[dataset_name]['contract']
+        contract_path = config[dataset]['contract']
         # Load and map columns based on file extension
         file_extension = os.path.splitext(file_path)[1].lower()
         
@@ -56,8 +56,8 @@ def main(file_id):
         df = df.rename(columns=contract_version.mapping)
 
         # Import the correct schema
-        schema_module = f"schemas.{dataset_name}_schema"
-        schema = __import__(schema_module, fromlist=[f"{dataset_name}_schema"]).__dict__[f"{dataset_name}_schema"]
+        schema_module = f"schemas.{dataset}_schema"
+        schema = __import__(schema_module, fromlist=[f"{dataset}_schema"]).__dict__[f"{dataset}_schema"]
         
         try:
             # Cast columns to proper data types according to schema

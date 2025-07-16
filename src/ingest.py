@@ -66,7 +66,7 @@ def main(file_path):
                     already exists in ingestion_log.""")
             return
         # Check if the new file's version is less than the max version for the same dataset and period
-        max_version_result = conn.execute(text("SELECT MAX(version) FROM meta.ingestion_log WHERE dataset_name = :dataset AND period = :period"), {"dataset": filename_metadata["dataset"], "period": filename_metadata["period"]})
+        max_version_result = conn.execute(text("SELECT MAX(version) FROM meta.ingestion_log WHERE dataset = :dataset AND period = :period"), {"dataset": filename_metadata["dataset"], "period": filename_metadata["period"]})
         max_version_row = max_version_result.fetchone()
         if max_version_row and max_version_row[0] is not None:
             max_version = max_version_row[0]
@@ -80,7 +80,7 @@ def main(file_path):
         
         # Insert log
         conn.execute(text("""
-            INSERT INTO meta.ingestion_log (file_name, file_hash, ingest_time, status, dataset_name, period, version)
+            INSERT INTO meta.ingestion_log (file_name, file_hash, ingest_time, status, dataset, period, version)
             VALUES (:file_name, :file_hash, :datetime_now, 'INGESTED', :dataset, :period, :version)
         """), {
             "file_name": file_name,
@@ -103,7 +103,7 @@ def main(file_path):
         update_obsolet_sql = text("""
             UPDATE meta.ingestion_log
             SET status = 'OBSOLET'
-            WHERE dataset_name = :dataset AND period = :period AND file_hash != :file_hash
+            WHERE dataset = :dataset AND period = :period AND file_hash != :file_hash
         """)
         conn.execute(update_obsolet_sql, {"dataset": filename_metadata["dataset"], "period": filename_metadata["period"], "file_hash": file_hash})
 

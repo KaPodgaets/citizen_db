@@ -20,7 +20,7 @@ def main(dataset: str, period: str):
         # 1. Check is there already dataset
         find_old_versions_sql = text("""
             SELECT id FROM meta.dataset_version
-            WHERE dataset_name = :dataset AND is_active = 1
+            WHERE dataset = :dataset AND is_active = 1
         """)
         current_dataset_version_raw = conn.execute(find_old_versions_sql, {"dataset": dataset}).fetchall()
         id_of_current_dataset = [row[0] for row in current_dataset_version_raw]
@@ -37,7 +37,7 @@ def main(dataset: str, period: str):
 
         # 2. Create a new current period record for dataset
         insert_version_sql = text("""
-            INSERT INTO meta.dataset_version (dataset_name, period, created_at, is_active)
+            INSERT INTO meta.dataset_version (dataset, period, created_at, is_active)
             VALUES (:dataset, :period, :now, 1)
         """)
         conn.execute(insert_version_sql, {"dataset": dataset, "period": period, "now": datetime.now()})

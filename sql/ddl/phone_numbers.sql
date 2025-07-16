@@ -11,7 +11,7 @@ BEGIN
         citizen_id INT NOT NULL,
         phone_number NVARCHAR(20) NOT NULL,
         type NVARCHAR(20) NOT NULL,
-        dataset_name NVARCHAR(50) NOT NULL,
+        dataset NVARCHAR(50) NOT NULL,
     );
 END
 GO

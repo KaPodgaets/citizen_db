@@ -25,7 +25,7 @@ BEGIN
         file_hash CHAR(64),
         ingest_time DATETIME2 DEFAULT SYSDATETIME(),
         status NVARCHAR(20),
-        dataset_name  NVARCHAR(255),
+        dataset  NVARCHAR(255),
         period NVARCHAR(20),
         version INT
     );
@@ -50,7 +50,7 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'dataset_version' AND schem
 BEGIN
     CREATE TABLE meta.dataset_version (
         id INT IDENTITY PRIMARY KEY,
-        dataset_name NVARCHAR(255),
+        dataset NVARCHAR(255),
         version_number INT,
         created_at DATETIME2 DEFAULT SYSDATETIME(),
         description NVARCHAR(255),
@@ -80,7 +80,7 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'transform_log' AND schema_
 BEGIN
     CREATE TABLE meta.transform_log (
         id INT IDENTITY(1,1) PRIMARY KEY,
-        dataset_name NVARCHAR(255) NOT NULL,
+        dataset NVARCHAR(255) NOT NULL,
         period VARCHAR(7) NOT NULL,
         status NVARCHAR(50) NOT NULL, -- PENDING, PASS, FAIL
         retry_count INT DEFAULT 0,

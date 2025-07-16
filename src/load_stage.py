@@ -6,7 +6,6 @@ import argparse
 import pandas as pd
 from sqlalchemy import text
 from src.utils.db import get_engine
-from datetime import datetime
 
 
 def main(validation_log_id: int):
@@ -21,7 +20,7 @@ def main(validation_log_id: int):
         query = text("""
             SELECT
                 il.file_name,
-                il.dataset_name,
+                il.dataset,
                 il.period
             FROM meta.validation_log vl
             JOIN meta.ingestion_log il ON vl.file_id = il.id
@@ -33,7 +32,7 @@ def main(validation_log_id: int):
         print(f"No 'PASS' record found in meta.validation_log for id {validation_log_id}, or it was already processed.")
         return
 
-    file_name, dataset_name, period = result
+    file_name, dataset, period = result
     base_file_name = os.path.splitext(file_name)[0]
     parquet_path = os.path.join("data/stage/cleaned", f"{base_file_name}.parquet")
     
@@ -53,7 +52,7 @@ def main(validation_log_id: int):
         df['_data_period'] = period
         df['_source_parquet_path'] = parquet_path
 
-        target_table = dataset_name
+        target_table = dataset
         
         with engine.begin() as conn:
             # 1. Delete existing data for the period (idempotency)

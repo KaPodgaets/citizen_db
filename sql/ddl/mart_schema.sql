@@ -25,7 +25,10 @@ CREATE TABLE mart.citizens (
     is_hazramim BIT NOT NULL,
     phone1 NVARCHAR(20) NULL,
     phone2 NVARCHAR(20) NULL,
-    phone3 NVARCHAR(20) NULL
+    phone3 NVARCHAR(20) NULL,
+    is_in_hamal_batch BIT NOT NULL,
+    file_name_hamal NVARCHAR(255) NULL,
+    is_dead_hamal BIT NULL,
 )
 END
 GO
