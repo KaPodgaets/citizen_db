@@ -34,9 +34,17 @@ def trigger_stage_load():
     """Finds validated files and triggers the stage loading script for each."""
     engine = get_engine()
     with engine.connect() as conn:
+        # Selects validation_log records with status 'PASS', whose corresponding ingestion_log record is 'INGESTED',
+        # and which do not have a 'PASS' record in stage_load_log for that validation_log_id.
         query = text("""
-            SELECT id FROM meta.validation_log 
-            WHERE status = 'PASS' AND id NOT IN (SELECT validation_log_id FROM meta.stage_load_log)
+            SELECT vl.id
+            FROM meta.validation_log vl
+            JOIN meta.ingestion_log il ON vl.file_id = il.id
+            WHERE vl.status = 'PASS'
+              AND il.status = 'INGESTED'
+              AND vl.id NOT IN (
+                  SELECT validation_log_id FROM meta.stage_load_log WHERE status = 'PASS'
+              )
         """)
         validated_files = conn.execute(query).fetchall()
         for row in validated_files:
