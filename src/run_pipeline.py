@@ -88,10 +88,13 @@ def prepare_transforms():
             print("No new transform tasks to create.")
             return
 
+        failed_tasks = []
         for dataset_name, period, version, stage_load_task_id in new_work:
             # Only create a new task if there is no record for the same stage_load_task_id
             check_query = text("""
-                SELECT id FROM meta.transform_log 
+                SELECT 
+                    id, status
+                FROM meta.transform_log 
                 WHERE stage_load_task_id = :stage_load_task_id
             """)
             existing = conn.execute(check_query, {"stage_load_task_id": stage_load_task_id}).fetchone()
@@ -104,7 +107,18 @@ def prepare_transforms():
                 conn.execute(insert_query, {"dataset": dataset_name, "period": period, "version": version, "stage_load_task_id": stage_load_task_id})
                 conn.commit()
                 print(f"Created PENDING transform task for {dataset_name}/{period}/{version} (stage_load_task_id={stage_load_task_id})")
-
+            else:
+                # If exists and status is FAIL, add to failed_tasks
+                _, status = existing
+                if status == 'FAIL':
+                    failed_tasks.append((dataset_name, period, version))
+                    
+        for dataset_name, period, version in failed_tasks:
+            print(f"""
+                [ALERT]: You MUST provide new data (file) for dataset '{dataset_name}' and period '{period}'
+                because the actual dataset version {version} failed to transform and ran out of retries,
+                but no new version was ingested.""")
+        
 
 def trigger_transforms():
     """Triggers the transform script for PENDING tasks or failed tasks that can be retried."""
