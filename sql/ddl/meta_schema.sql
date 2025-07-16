@@ -51,7 +51,7 @@ BEGIN
     CREATE TABLE meta.dataset_version (
         id INT IDENTITY PRIMARY KEY,
         dataset NVARCHAR(255),
-        version_number INT,
+        version INT,
         created_at DATETIME2 DEFAULT SYSDATETIME(),
         description NVARCHAR(255),
         period NVARCHAR(20),

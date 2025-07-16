@@ -119,6 +119,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Transform data from stage to core for a specific dataset and period using a rebuild strategy.")
     parser.add_argument("--dataset", type=str, required=True, help="Dataset name to process (e.g., 'av_bait').")
     parser.add_argument("--period", type=str, required=True, help="Period to process (e.g., '2025-07').")
-    parser.add_argument("--version", type=str, required=True, help="Version to process (should be just int, e.g. 1)")
+    parser.add_argument("--version", type=int, required=True, help="Version to process (should be just int, e.g. 1)")
     args = parser.parse_args()
     main(dataset=args.dataset, period=args.period, version=args.version) 

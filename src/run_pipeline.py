@@ -62,34 +62,29 @@ def prepare_transforms():
         # - with status 'INGESTED' in ingestion_log table (through validation_log table)
         # - with period and version greater than period and version of record with is_active = 1 from dataset_version table for the same dataset
         query = text("""
-            SELECT il.dataset_name, il.period, il.version, sll.id as stage_load_task_id
+            SELECT il.dataset, il.period, il.version, sll.id as stage_load_task_id
             FROM meta.stage_load_log sll
             JOIN meta.validation_log vl ON sll.validation_log_id = vl.id
             JOIN meta.ingestion_log il ON vl.file_id = il.id
+            LEFT JOIN meta.dataset_version dv 
+                ON dv.dataset = il.dataset AND dv.is_active = 1
             WHERE sll.status = 'PASS'
-              AND il.status = 'INGESTED'
-              AND (
-                  il.period > (
-                      SELECT dv.period FROM meta.dataset_version dv WHERE dv.dataset_name = il.dataset_name AND dv.is_active = 1
-                  )
-                  OR (
-                      il.period = (
-                          SELECT dv.period FROM meta.dataset_version dv WHERE dv.dataset_name = il.dataset_name AND dv.is_active = 1
-                      )
-                      AND il.version > (
-                          SELECT dv.version FROM meta.dataset_version dv WHERE dv.dataset_name = il.dataset_name AND dv.is_active = 1
-                      )
-                  )
-              )
-        """)
+            AND il.status = 'INGESTED'
+            AND (
+                    dv.id IS NULL
+                    OR il.period > dv.period
+                    OR (il.period = dv.period AND il.version > dv.version)
+            )"""
+        )
+        
         new_work = conn.execute(query).fetchall()
-
+        
         if not new_work:
             print("No new transform tasks to create.")
             return
 
         failed_tasks = []
-        for dataset_name, period, version, stage_load_task_id in new_work:
+        for dataset, period, version, stage_load_task_id in new_work:
             # Only create a new task if there is no record for the same stage_load_task_id
             check_query = text("""
                 SELECT 
@@ -101,21 +96,21 @@ def prepare_transforms():
             
             if not existing:
                 insert_query = text("""
-                    INSERT INTO meta.transform_log (dataset_name, period, version, stage_load_task_id, status, retry_count)
+                    INSERT INTO meta.transform_log (dataset, period, version, stage_load_task_id, status, retry_count)
                     VALUES (:dataset, :period, :version, :stage_load_task_id, 'PENDING', 0)
                 """)
-                conn.execute(insert_query, {"dataset": dataset_name, "period": period, "version": version, "stage_load_task_id": stage_load_task_id})
+                conn.execute(insert_query, {"dataset": dataset, "period": period, "version": version, "stage_load_task_id": stage_load_task_id})
                 conn.commit()
-                print(f"Created PENDING transform task for {dataset_name}/{period}/{version} (stage_load_task_id={stage_load_task_id})")
+                print(f"Created PENDING transform task for {dataset}/{period}/{version} (stage_load_task_id={stage_load_task_id})")
             else:
                 # If exists and status is FAIL, add to failed_tasks
                 _, status = existing
                 if status == 'FAIL':
-                    failed_tasks.append((dataset_name, period, version))
+                    failed_tasks.append((dataset, period, version))
 
-        for dataset_name, period, version in failed_tasks:
+        for dataset, period, version in failed_tasks:
             print(f"""
-                [ALERT]: You MUST provide new data (file) for dataset '{dataset_name}' and period '{period}'
+                [ALERT]: You MUST provide new data (file) for dataset '{dataset}' and period '{period}'
                 because the actual dataset version {version} failed to transform and ran out of retries,
                 but no new version was ingested.""")
         
@@ -141,7 +136,7 @@ def trigger_transforms():
             continue
 
         print(f"Triggering transform for {dataset}/{period}/{version} (Task ID: {task_id})")
-        
+
         proc = subprocess.run(
             ['python', script_path, '--dataset', dataset, '--period', period, '--version', version],
             capture_output=True, text=True
