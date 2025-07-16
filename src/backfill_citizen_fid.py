@@ -1,8 +1,12 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import argparse
 import pandas as pd
+
 from sqlalchemy import text
 from src.utils.db import get_engine
-import sys
 
 
 def main(filepath):
@@ -65,6 +69,15 @@ def main(filepath):
         df.to_sql('fake_citizen_ids', conn, if_exists='append', index=False)
         print(f"[PASS] Successfully inserted {len(df)} records into fake_citizen_ids table.")
 
+        # Set correct starting point for FID sequence
+        max_fid = int(df['fake_citizen_id'].max())
+        # /* Restart the existing sequence at a new starting value */
+        conn.execute(text(f"""
+                        ALTER SEQUENCE core.seq_fake_citizen_id
+                        RESTART WITH {max_fid + 1};
+                        """
+        ))
+        print(f'[LOG] Sequence for fake isd starts from {max_fid + 1}')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Backfill fake_citizen_ids table from snapshot Excel file.")

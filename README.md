@@ -12,7 +12,7 @@
 ### Workflow tests
 - step 0 - backfill fake_ids if exist
 ```bash
-python src/backfill_citizen_fid.py --filepath data/snapshots/fake_id-2025-07-16.xlsx
+python src/backfill_citizen_fid.py --filepath data/snapshots/fake_id-2025-06-15.xlsx
 ```
 - step 1 - after run commands, check the DB status
 ```bash
