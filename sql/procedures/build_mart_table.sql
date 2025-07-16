@@ -44,6 +44,25 @@ CREATE TABLE #citizens_work
     is_in_hamal_batch     BIT,
     file_name_hamal       NVARCHAR(255),
     is_dead_hamal         BIT,
+    is_left_the_city_permanent BIT,
+    is_answered_the_call  BIT,
+    has_final_status        BIT,
+    is_lonely               BIT,
+    is_address_wrong        BIT,
+    new_street_name         NVARCHAR(100) NULL,
+    new_building_number     NVARCHAR(10) NULL,
+    new_appartment_number   NVARCHAR(10) NULL,
+    has_mamad               BIT,
+    has_miklat_prati        BIT,
+    has_miklat_ziburi       BIT,
+    has_mobility_restriction BIT,
+    has_temporary_address   BIT,
+    is_temporary_abroad     BIT,
+    temporary_street_name   NVARCHAR(100) NULL,
+    temporary_building_number NVARCHAR(10) NULL,
+    temporary_appartment    NVARCHAR(10) NULL,
+    appearance_count        INT NULL,
+    calcenter_case_number   NVARCHAR(10) NULL
 );
 
 ------------------------------------------------------------
@@ -112,6 +131,25 @@ with base as (
         , file_name
         , is_dead
         , 1 as is_in_hamal_batch
+        , is_left_the_city_permanent
+        , is_answered_the_call
+        , has_final_status
+        , is_lonely
+        , is_address_wrong
+        , new_street_name
+        , new_building_number
+        , new_appartment_number
+        , has_mamad
+        , has_miklat_prati
+        , has_miklat_ziburi
+        , has_mobility_restriction
+        , has_temporary_address
+        , is_temporary_abroad
+        , temporary_street_name
+        , temporary_building_number
+        , temporary_appartment
+        , appearance_count
+        , calcenter_case_number
     from core.hamal h
     LEFT JOIN core.fake_citizen_ids AS fid ON h.citizen_fid = fid.fake_citizen_id
     where 
@@ -140,7 +178,26 @@ INSERT INTO #citizens_work (
     phone3,
     is_in_hamal_batch,
     file_name_hamal,
-    is_dead_hamal
+    is_dead_hamal,
+    is_left_the_city_permanent,
+    is_answered_the_call,
+    has_final_status,
+    is_lonely,
+    is_address_wrong,
+    new_street_name,
+    new_building_number,
+    new_appartment_number,
+    has_mamad,
+    has_miklat_prati,
+    has_miklat_ziburi,
+    has_mobility_restriction,
+    has_temporary_address,
+    is_temporary_abroad,
+    temporary_street_name,
+    temporary_building_number,
+    temporary_appartment,
+    appearance_count,
+    calcenter_case_number
 )
 SELECT
     fid.fake_citizen_id,
@@ -169,7 +226,26 @@ SELECT
     /* hamal data */
     MAX(CASE WHEN COALESCE(hml.is_in_hamal_batch, 0) > 0 THEN 1 ELSE 0 END) AS is_in_hamal_batch,
     hml.file_name as file_name_hamal,
-    hml.is_dead as is_dead_hamal
+    hml.is_dead as is_dead_hamal,
+    hml.is_left_the_city_permanent,
+    hml.is_answered_the_call,
+    hml.has_final_status,
+    hml.is_lonely,
+    hml.is_address_wrong,
+    hml.new_street_name,
+    hml.new_building_number,
+    hml.new_appartment_number,
+    hml.has_mamad,
+    hml.has_miklat_prati,
+    hml.has_miklat_ziburi,
+    hml.has_mobility_restriction,
+    hml.has_temporary_address,
+    hml.is_temporary_abroad,
+    hml.temporary_street_name,
+    hml.temporary_building_number,
+    hml.temporary_appartment,
+    hml.appearance_count,
+    hml.calcenter_case_number
 FROM base as b
 LEFT JOIN fake_ids AS fid ON b.citizen_id = fid.citizen_id
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id
@@ -183,7 +259,12 @@ GROUP BY
     b.street_name, b.street_code, b.building_number,
     b.apartment_number, b.family_index_number,
     w.is_welfare_patient, 
-    hml.file_name, hml.is_dead;
+    hml.file_name, hml.is_dead, hml.is_left_the_city_permanent, hml.is_answered_the_call,
+    hml.has_final_status, hml.is_lonely, hml.is_address_wrong, hml.new_street_name,
+    hml.new_building_number, hml.new_appartment_number, hml.has_mamad, hml.has_miklat_prati,
+    hml.has_miklat_ziburi, hml.has_mobility_restriction, hml.has_temporary_address,
+    hml.is_temporary_abroad, hml.temporary_street_name, hml.temporary_building_number,
+    hml.temporary_appartment, hml.appearance_count, hml.calcenter_case_number;
 
 
 ------------------------------------------------------------

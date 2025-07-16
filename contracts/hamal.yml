@@ -12,7 +12,7 @@
   'HasMiklatZiburi': has_miklat_ziburi
   'HasMobilityRestriction': has_mobility_restriction
   'IsDead': is_dead
-  'IsLeftTheCityPermanent': is_left_the_ctiry_permanent
+  'IsLeftTheCityPermanent': is_left_the_city_permanent
   'HasTemporaryAddress': has_temporary_address
   'IsTemporaryAbroad': is_temporary_abroad
   'TemporaryStreetName': temporary_street_name
