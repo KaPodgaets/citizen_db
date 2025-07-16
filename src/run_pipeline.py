@@ -5,8 +5,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import subprocess
 import yaml
 from sqlalchemy import text
-from src.utils.db import get_engine
 from datetime import datetime
+
+from src.utils.db import get_engine
+from src.utils.config import settings
 
 
 def trigger_validation():
@@ -88,7 +90,7 @@ def prepare_transforms():
             # Only create a new task if there is no record for the same stage_load_task_id
             check_query = text("""
                 SELECT 
-                    id, status
+                    id, status, retry_count
                 FROM meta.transform_log 
                 WHERE stage_load_task_id = :stage_load_task_id
             """)
@@ -104,8 +106,8 @@ def prepare_transforms():
                 print(f"Created PENDING transform task for {dataset}/{period}/{version} (stage_load_task_id={stage_load_task_id})")
             else:
                 # If exists and status is FAIL, add to failed_tasks
-                _, status = existing
-                if status == 'FAIL':
+                _, status, retry_count = existing
+                if (status == 'FAIL' and retry_count == settings.transformation_retries_default):
                     failed_tasks.append((dataset, period, version))
 
         for dataset, period, version in failed_tasks:
@@ -117,12 +119,19 @@ def prepare_transforms():
 
 def trigger_transforms():
     """Triggers the transform script for PENDING tasks or failed tasks that can be retried."""
+    retries = settings.transformation_retries_default
+
     engine = get_engine()
     with open("datasets_config.yml", 'r', encoding='utf-8') as f:
         datasets_config = yaml.safe_load(f)
     
     # Find tasks that need to be run
-    query = text("SELECT id, dataset, period, version FROM meta.transform_log WHERE status = 'PENDING' OR (status = 'FAIL' AND retry_count < 2)")
+    query = text(
+        f"""SELECT id, dataset, period, version 
+            FROM meta.transform_log 
+            WHERE status = 'PENDING' 
+                OR (status = 'FAIL' AND retry_count < {retries})"""
+    )
     tasks_to_run = engine.connect().execute(query).fetchall()
 
     for task_id, dataset, period, version in tasks_to_run:

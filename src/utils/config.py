@@ -6,5 +6,6 @@ class Settings(BaseSettings):
     database: str
     environment: str = "dev"
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    transformation_retries_default: int = 2
 
 settings = Settings() 
