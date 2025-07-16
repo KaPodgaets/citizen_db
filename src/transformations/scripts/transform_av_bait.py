@@ -11,7 +11,7 @@ from datetime import datetime
 
 
 @global_error_handler('transform')
-def main(dataset: str, period: str):
+def main(dataset: str, period: str, version: int):
     engine = get_engine()
     metadata = MetaData()
     core_schema = "core"
@@ -40,7 +40,7 @@ def main(dataset: str, period: str):
             INSERT INTO meta.dataset_version (dataset, period, version, created_at, is_active)
             VALUES (:dataset, :period, :version, :now, 1)
         """)
-        conn.execute(insert_version_sql, {"dataset": dataset, "period": period, "now": datetime.now()})
+        conn.execute(insert_version_sql, {"dataset": dataset, "period": period, "version": version, "now": datetime.now()})
         
 
         # 3. delete data from core table

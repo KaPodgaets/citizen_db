@@ -138,7 +138,7 @@ def trigger_transforms():
         print(f"Triggering transform for {dataset}/{period}/{version} (Task ID: {task_id})")
 
         proc = subprocess.run(
-            ['python', script_path, '--dataset', dataset, '--period', period, '--version', version],
+            ['python', script_path, '--dataset', dataset, '--period', period, '--version', str(version)],
             capture_output=True, text=True
         )
 
