@@ -1,60 +1,67 @@
+import argparse
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 import pandas as pd
-import argparse
-from sqlalchemy import MetaData, Table, text
+from sqlalchemy import text
 
-from src.transformations.error_handling import global_error_handler
 from src.utils.db import get_engine
 from src.utils.metadata_helpers import set_new_active_dataset_version
 from src.utils.fake_id_utils import run_update_fake_id_table, save_fake_id_table_as_snapshot
 
-@global_error_handler('transform')
-def main(dataset: str, period: str, version: int):
+def delete_from_core_table(core_schema: str, dataset: str, period: str, version: int) -> None:
     engine = get_engine()
-    metadata = MetaData()
-    core_schema = "core"
 
     with engine.begin() as conn:
-        # 1. Change data in meta table dataset_version (new record with is_active = 1)
-        set_new_active_dataset_version(dataset, period, version)
         
-        # 2. delete data from core table
         try:
-            core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
-            delete_stmt = core_table.delete()
-            conn.execute(delete_stmt)
+            conn.execute(text(f"DELETE FROM {core_schema}.{dataset}"))
             print("Deleted data for from core table")
         except Exception as e:
             print(f"Could not delete old data, perhaps schema not updated yet? Error: {e}")
 
-        # 4. Load from stage, add version id, insert into core
+
+def main(dataset: str, period: str, version: int):
+    core_schema = "core"
+
+    # 1. Change data in meta table dataset_version (new record with is_active = 1)
+    set_new_active_dataset_version(dataset, period, version)
+
+    # 2. delete data from core table
+    delete_from_core_table(core_schema, dataset, period, version)
+
+    # 3. Load from stage
+    engine = get_engine()
+    with engine.begin() as conn:
         staging_table_name = dataset
-        staging_df = pd.read_sql(
-            text(f"SELECT * FROM stage.{staging_table_name} WHERE _data_period = :period"),
-            conn,
-            params={"period": period}
-        )
+        try:
+            staging_df = pd.read_sql(
+                text(f"SELECT * FROM stage.{staging_table_name} WHERE _data_period = :period"),
+                conn,
+                params={"period": period}
+            )
+        except Exception:
+            print(f"""[ERROR] Can not read sql table stage.{dataset}""")
 
         if staging_df.empty:
             print(f"No data found in stage.{staging_table_name} for period {period}. Nothing to transform.")
             return
 
-        cols_to_drop = ['_data_period', '_source_parquet_path']
-        existing_cols_to_drop = [col for col in cols_to_drop if col in staging_df.columns]
-        if existing_cols_to_drop:
-            staging_df = staging_df.drop(columns=existing_cols_to_drop)
-        
-        staging_df['is_current'] = 1
-        
-        staging_df.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
-        print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
+    cols_to_drop = ['_data_period', '_source_parquet_path']
+    existing_cols_to_drop = [col for col in cols_to_drop if col in staging_df.columns]
+    if existing_cols_to_drop:
+        staging_df = staging_df.drop(columns=existing_cols_to_drop)
+    
+    staging_df['is_current'] = 1
+    
+    # staging_df.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
+    staging_df.to_sql(dataset, engine, schema=core_schema, if_exists='append', index=False)
+    print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
 
-        # update fake_citizen_id table
-        run_update_fake_id_table()
-        save_fake_id_table_as_snapshot()
+    # update fake_citizen_id table
+    run_update_fake_id_table()
+    save_fake_id_table_as_snapshot()
 
 
 if __name__ == "__main__":
@@ -64,3 +71,5 @@ if __name__ == "__main__":
     parser.add_argument("--version", type=int, required=True, help="Version to process (should be just int, e.g. 1)")
     args = parser.parse_args()
     main(dataset=args.dataset, period=args.period, version=args.version) 
+    # main(dataset='av_bait', period='2025-06', version=2)
+    

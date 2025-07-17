@@ -9,13 +9,14 @@ def run_update_fake_id_table():
     """We need this table to be related to HAMAL application which uses only FID values to identify citizens"""
     engine = get_engine()
     
-    with engine.begin() as conn:
+    with engine.connect() as conn:
         print('[LOG][update_fake_ids]: executing procedure `fid_update`')
         with open('sql/procedures/fid_update.sql', 'r', encoding='utf-8') as f:
             sql = f.read()
         sql_query = text(sql)
         try:
             conn.execute(sql_query)
+            conn.commit()
             print('[LOG][update_fake_ids]: `table fake_id was updated successfully`')
         except Exception as e:
             raise Exception(f'[ERR][update_fake_ids] : {e}')
@@ -23,7 +24,7 @@ def run_update_fake_id_table():
 def save_fake_id_table_as_snapshot():
     """Saving xlsx file as snapshot to backfill dictionary in case of full restart the system"""
     engine = get_engine()
-    with engine.begin() as conn:
+    with engine.connect() as conn:
         print('[LOG][fake_id_snapshot]: start snapshoting the table `fid_update`')
         sql_query = text('''
                         select 

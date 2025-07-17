@@ -1,9 +1,10 @@
+import argparse
 import sys
 import os
+import pandas as pd
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from sqlalchemy import text
-import pandas as pd
 
 from src.utils.db import get_engine
 
@@ -102,8 +103,8 @@ def main(filepath):
     
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description="Backfill fake_citizen_ids table from snapshot Excel file.")
-    # parser.add_argument('--filepath', required=True, help='Path to the Excel snapshot file')
-    # args = parser.parse_args()
-    # main(args.filepath) 
-    main(r'C:\Work\5_projects\citizen_db\data\snapshots\fake_id-2025-06-15.xlsx')
+    parser = argparse.ArgumentParser(description="Backfill fake_citizen_ids table from snapshot Excel file.")
+    parser.add_argument('--filepath', required=True, help='Path to the Excel snapshot file')
+    args = parser.parse_args()
+    main(args.filepath) 
+    # main(r'C:\Work\5_projects\citizen_db\data\snapshots\fake_id-2025-06-15.xlsx')
