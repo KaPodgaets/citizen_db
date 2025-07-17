@@ -225,27 +225,27 @@ SELECT
     MAX(CASE WHEN p.rn = 3 THEN p.phone_number END) AS phone3,
     /* hamal data */
     MAX(CASE WHEN COALESCE(hml.is_in_hamal_batch, 0) > 0 THEN 1 ELSE 0 END) AS is_in_hamal_batch,
-    hml.file_name as file_name_hamal,
-    hml.is_dead as is_dead_hamal,
-    hml.is_left_the_city_permanent,
-    hml.is_answered_the_call,
-    hml.has_final_status,
-    hml.is_lonely,
-    hml.is_address_wrong,
-    hml.new_street_name,
-    hml.new_building_number,
-    hml.new_appartment_number,
-    hml.has_mamad,
-    hml.has_miklat_prati,
-    hml.has_miklat_ziburi,
-    hml.has_mobility_restriction,
-    hml.has_temporary_address,
-    hml.is_temporary_abroad,
-    hml.temporary_street_name,
-    hml.temporary_building_number,
-    hml.temporary_appartment,
-    hml.appearance_count,
-    hml.calcenter_case_number
+    hml.file_name as file_name_hamal
+    , COALESCE(hml.is_dead, 0) as is_dead
+    , COALESCE(hml.is_left_the_city_permanent, 0) as is_left_the_city_permanent
+    , COALESCE(hml.is_answered_the_call, 0) as is_answered_the_call
+    , COALESCE(hml.has_final_status, 0) as has_final_status
+    , COALESCE(hml.is_lonely, 0) as is_lonely
+    , COALESCE(hml.is_address_wrong, 0) as is_address_wrong
+    , hml.new_street_name
+    , hml.new_building_number
+    , hml.new_appartment_number
+    , COALESCE(hml.has_mamad, 0) as has_mamad
+    , COALESCE(hml.has_miklat_prati, 0) as has_miklat_prati
+    , COALESCE(hml.has_miklat_ziburi, 0) as has_miklat_ziburi
+    , COALESCE(hml.has_mobility_restriction, 0) as has_mobility_restriction
+    , COALESCE(hml.has_temporary_address, 0) as has_temporary_address
+    , COALESCE(hml.is_temporary_abroad, 0) as is_temporary_abroad
+    , hml.temporary_street_name
+    , hml.temporary_building_number
+    , hml.temporary_appartment
+    , hml.appearance_count
+    , hml.calcenter_case_number
 FROM base as b
 LEFT JOIN fake_ids AS fid ON b.citizen_id = fid.citizen_id
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id

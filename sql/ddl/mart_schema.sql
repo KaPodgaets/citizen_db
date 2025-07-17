@@ -30,7 +30,7 @@ CREATE TABLE mart.citizens (
     /* hamal data */
     is_in_hamal_batch BIT NOT NULL,
     file_name_hamal NVARCHAR(255) NULL,
-    is_dead_hamal BIT NULL,
+    is_dead_hamal BIT NOT NULL,
     is_left_the_city_permanent BIT NOT NULL,
     is_answered_the_call  BIT NOT NULL,
     has_final_status BIT NOT NULL,
