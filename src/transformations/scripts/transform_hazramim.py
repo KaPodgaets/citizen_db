@@ -20,9 +20,6 @@ def main(dataset: str, period: str, version: int):
     core_schema = "core"
 
     with engine.begin() as conn:
-        # 1. Change data in meta table dataset_version (new record with is_active = 1)
-        set_new_active_dataset_version(dataset, period, version)
-        
         # 2. delete data from core table
         try:
             core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
@@ -65,8 +62,7 @@ def main(dataset: str, period: str, version: int):
         selected_columns = ['citizen_id'] + phone_cols_to_drop
         available_columns = [col for col in selected_columns if col in staging_df.columns]
         phone_df = staging_df[available_columns]
-        
-        
+                
         # Transform to citizen_id, phone_number format by melting the DataFrame
         if not phone_df.empty and len(available_columns) > 1:  # Check if we have phone columns
             # Melt the DataFrame to convert phone columns to rows
@@ -78,7 +74,7 @@ def main(dataset: str, period: str, version: int):
             )
 
             # rename column to run unpivot
-            phone_df = phone_df.rename(columns={'phone_number': 'phone_number_citizen'})
+            phone_df = phone_df.rename(columns={'phone_number_citizen': 'phone_number'})
 
             # Remove rows where phone_number is null/empty
             phone_df = phone_df.dropna(subset=['phone_number'])
@@ -95,7 +91,6 @@ def main(dataset: str, period: str, version: int):
         
         phone_df['dataset'] = dataset
 
-
         # clean core.phone_numbers from previous data
         delete_query_sql = text("""
             DELETE FROM core.phone_numbers WHERE dataset = :dataset
@@ -104,6 +99,8 @@ def main(dataset: str, period: str, version: int):
         # append new data
         phone_df.to_sql(name="phone_numbers", con=conn, schema=core_schema, if_exists='append', index=False)
 
+    # 1. Change data in meta table dataset_version (new record with is_active = 1)
+    set_new_active_dataset_version(dataset, period, version)
         
 
 

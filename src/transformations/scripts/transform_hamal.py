@@ -19,9 +19,6 @@ def main(dataset: str, period: str, version: int):
     core_schema = "core"
 
     with engine.begin() as conn:
-        # 1. Change data in meta table dataset_version (new record with is_active = 1)
-        set_new_active_dataset_version(dataset, period, version)
-
         # 2. Load from stage, add version id, insert into core
         staging_table_name = dataset
         stage_df = pd.read_sql(
@@ -48,11 +45,11 @@ def main(dataset: str, period: str, version: int):
         # 5. Prepare new rows
         new_rows = stage_df.copy()
         # Calculate has_final_status: 1 if is_answered, is_dead, or is_left_the_city is True, else 0
-        for col in ['is_answered', 'is_dead', 'is_left_the_city_permanent']:
+        for col in ['is_answered_the_call', 'is_dead', 'is_left_the_city_permanent']:
             if col not in new_rows.columns:
                 new_rows[col] = 0
         new_rows['has_final_status'] = (
-            new_rows['is_answered'].astype(bool) |
+            new_rows['is_answered_the_call'].astype(bool) |
             new_rows['is_dead'].astype(bool) |
             new_rows['is_left_the_city_permanent'].astype(bool)
         ).astype(int)
@@ -88,6 +85,9 @@ def main(dataset: str, period: str, version: int):
             raise Exception(f'[ERR]: Error while inserting data into core.hamal. {e}')
 
         print(f"[LOG]: Transformed hamal table with {len(transformed_df_to_core)} rows; {len(latest_period_idx)} marked as is_current = 1")
+        
+        # 1. Change data in meta table dataset_version (new record with is_active = 1)
+        set_new_active_dataset_version(dataset, period, version)
 
 
 

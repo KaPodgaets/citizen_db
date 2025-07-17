@@ -28,8 +28,6 @@ IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'hazramim' AND schema_id = 
 BEGIN
     CREATE TABLE core.hazramim (
         citizen_id INT NOT NULL,
-        phone_number NVARCHAR(200) NULL,
-        phone_number_contact_person NVARCHAR(200) NULL,
         is_current INT NOT NULL
     );
 END

@@ -25,12 +25,6 @@ def delete_from_core_table(core_schema: str, dataset: str, period: str, version:
 def main(dataset: str, period: str, version: int):
     core_schema = "core"
 
-    # 1. Change data in meta table dataset_version (new record with is_active = 1)
-    set_new_active_dataset_version(dataset, period, version)
-
-    # 2. delete data from core table
-    delete_from_core_table(core_schema, dataset, period, version)
-
     # 3. Load from stage
     engine = get_engine()
     with engine.begin() as conn:
@@ -54,6 +48,12 @@ def main(dataset: str, period: str, version: int):
         staging_df = staging_df.drop(columns=existing_cols_to_drop)
     
     staging_df['is_current'] = 1
+    
+    # 1. Change data in meta table dataset_version (new record with is_active = 1)
+    set_new_active_dataset_version(dataset, period, version)
+
+    # 2. delete data from core table
+    delete_from_core_table(core_schema, dataset, period, version)
     
     # staging_df.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
     staging_df.to_sql(dataset, engine, schema=core_schema, if_exists='append', index=False)

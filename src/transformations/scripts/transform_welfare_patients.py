@@ -20,18 +20,6 @@ def main(dataset: str, period: str, version: int):
     core_schema = "core"
 
     with engine.begin() as conn:
-        # 1. Change data in meta table dataset_version (new record with is_active = 1)
-        set_new_active_dataset_version(dataset, period, version)
-        
-        # 2. delete data from core table
-        try:
-            core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
-            delete_stmt = core_table.delete()
-            conn.execute(delete_stmt)
-            print("Deleted data for from core table")
-        except Exception as e:
-            print(f"Could not delete old data, perhaps schema not updated yet? Error: {e}")
-
         # 4. Load from stage, add version id, insert into core
         staging_table_name = dataset
         staging_df = pd.read_sql(
@@ -67,6 +55,19 @@ def main(dataset: str, period: str, version: int):
                 # Replace 'nan' strings with None for NULL values
                 staging_df_to_core[col] = staging_df_to_core[col].replace('nan', None)
         
+
+        # 1. Change data in meta table dataset_version (new record with is_active = 1)
+        set_new_active_dataset_version(dataset, period, version)
+        
+        # 2. delete data from core table
+        try:
+            core_table = Table(dataset, metadata, schema=core_schema, autoload_with=conn)
+            delete_stmt = core_table.delete()
+            conn.execute(delete_stmt)
+            print("Deleted data for from core table")
+        except Exception as e:
+            print(f"Could not delete old data, perhaps schema not updated yet? Error: {e}")
+
         staging_df_to_core.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
         print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
 
