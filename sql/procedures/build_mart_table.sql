@@ -101,7 +101,7 @@ with base as (
     select
         citizen_id
         , 1 as is_new_imigrant
-    from core.welfare_patients
+    from core.new_immigrants
     where is_current = 1
     group by citizen_id
 ), hazramim_cte as (
@@ -173,7 +173,7 @@ INSERT INTO #citizens_work (
     family_index_number
     , is_living_alone
     , is_elder_pair
-    has_phone,
+    , has_phone,
     has_mobile_phone,
     is_welfare_patient,
     is_new_imigrant,
@@ -219,7 +219,7 @@ SELECT
     , b.is_living_alone
     , b.is_elder_pair
     /* phone flags */
-    CASE WHEN COUNT(p.phone_number) > 0 THEN 1 ELSE 0 END AS has_phone,
+    , CASE WHEN COUNT(p.phone_number) > 0 THEN 1 ELSE 0 END AS has_phone,
     CASE WHEN SUM(CASE WHEN p.type = 'mobile' THEN 1 ELSE 0 END) > 0
          THEN 1 ELSE 0 END as has_mobile_phone,
     /* flags */
