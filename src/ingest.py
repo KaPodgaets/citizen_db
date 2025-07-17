@@ -53,12 +53,14 @@ def main(file_path):
     # 5. Idempotency check and log
     with engine.begin() as conn:
         result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE file_hash = :hash"), {"hash": file_hash})
-        if result.scalar() > 0:
+        count = result.scalar()
+        if count is not None and count > 0:
             print(f"[WAR]: File {file_name} already ingested (hash: {file_hash}). That means there is no changes in data")
             return
         # Also check for duplicate (dataset, period, version)
         result = conn.execute(text("SELECT COUNT(*) FROM meta.ingestion_log WHERE dataset = :dataset AND period = :period AND version = :version"), {"dataset": filename_metadata["dataset"], "period": filename_metadata["period"], "version": filename_metadata["version"]})
-        if result.scalar() > 0:
+        count = result.scalar()
+        if count is not None and count > 0:
             print(f"""[WAR]: A record with 
                     dataset={filename_metadata['dataset']},
                     period={filename_metadata['period']},

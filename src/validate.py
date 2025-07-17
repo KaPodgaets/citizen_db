@@ -4,13 +4,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import argparse
 import pandas as pd
-import pandera.pandas as pa
 import yaml
 from sqlalchemy import text
 from datetime import datetime
 from src.utils.db import get_engine
 from src.utils.yaml_parser import parse_contract, get_closest_mapping_before
 from src.transformations.error_handling import global_error_handler
+from pandera.errors import SchemaError
 
 @global_error_handler('validate')
 def main(file_id):
@@ -114,7 +114,7 @@ def main(file_id):
             error_report = None
             print(f"Validation passed. Parquet written to {parquet_path}")
             
-        except (pa.errors.SchemaError, ValueError) as e:
+        except (SchemaError, ValueError) as e:
             status = "FAIL"
             error_report = str(e)
             print(f"Validation failed: {e}")

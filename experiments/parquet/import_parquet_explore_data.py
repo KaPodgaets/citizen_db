@@ -1,6 +1,4 @@
 import pandas as pd
-import os
-import glob
 from pathlib import Path
 
 def explore_parquet_files():
@@ -37,12 +35,12 @@ def explore_parquet_files():
             df = pd.read_parquet(parquet_file)
             
             # Basic information
-            print(f"\n📊 BASIC INFO:")
+            print("\n📊 BASIC INFO:")
             print(f"Shape: {df.shape[0]} rows × {df.shape[1]} columns")
             print(f"Memory usage: {df.memory_usage(deep=True).sum() / 1024:.2f} KB")
             
             # Column information
-            print(f"\n📋 COLUMNS:")
+            print("\n📋 COLUMNS:")
             for i, col in enumerate(df.columns, 1):
                 dtype = df[col].dtype
                 null_count = df[col].isnull().sum()
@@ -50,25 +48,25 @@ def explore_parquet_files():
                 print(f"  {i:2d}. {col:<20} | {str(dtype):<15} | {null_count:>4} nulls ({null_pct:5.1f}%)")
             
             # Data types summary
-            print(f"\n🔍 DATA TYPES SUMMARY:")
+            print("\n🔍 DATA TYPES SUMMARY:")
             dtype_counts = df.dtypes.value_counts()
             for dtype, count in dtype_counts.items():
                 print(f"  {dtype}: {count} columns")
             
             # Sample data
-            print(f"\n📝 SAMPLE DATA (first 5 rows):")
+            print("\n📝 SAMPLE DATA (first 5 rows):")
             print(df.head().to_string())
             
             # Statistical summary for numeric columns
             numeric_cols = df.select_dtypes(include=['number']).columns
             if len(numeric_cols) > 0:
-                print(f"\n📈 NUMERIC COLUMNS SUMMARY:")
+                print("\n📈 NUMERIC COLUMNS SUMMARY:")
                 print(df[numeric_cols].describe())
             
             # Unique values for categorical columns (first 10 unique values)
             categorical_cols = df.select_dtypes(include=['object', 'string']).columns
             if len(categorical_cols) > 0:
-                print(f"\n🏷️  CATEGORICAL COLUMNS (first 10 unique values):")
+                print("\n🏷️  CATEGORICAL COLUMNS (first 10 unique values):")
                 for col in categorical_cols:
                     unique_vals = df[col].dropna().unique()
                     print(f"  {col}: {len(unique_vals)} unique values")

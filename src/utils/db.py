@@ -3,11 +3,11 @@ from sqlalchemy.engine import Engine
 from urllib.parse import quote_plus
 from src.utils.config import settings
 
-_engine: Engine = None
+_engine: Engine | None = None
 
 def get_engine() -> Engine:
-    db_uri = get_connection_uri()
     global _engine
+    db_uri = get_connection_uri()
     if _engine is None:
         _engine = create_engine(db_uri, pool_pre_ping=True)
     return _engine

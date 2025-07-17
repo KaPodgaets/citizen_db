@@ -1,12 +1,10 @@
-import yaml
 
-from pydantic import BaseModel
 from datetime import datetime, date
-from dataclasses import dataclass
+from typing import Dict, Any
 
 from src.models.contracts import ColumnMapping, ContractFile, ContractVersion
 
-def parse_contract(raw: dict) -> ContractFile:
+def parse_contract(raw: Dict[str, Dict[str, Any]]) -> ContractFile:
     result = {}
     for date_str, mapping_dict in raw.items():
         # Convert string key to datetime.date

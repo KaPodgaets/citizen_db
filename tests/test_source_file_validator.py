@@ -1,5 +1,3 @@
-import os
-import tempfile
 import yaml
 import pytest
 from src.utils import source_file_validator
@@ -52,9 +50,9 @@ def test_validate_headers(tmp_path, monkeypatch):
             def __init__(self, mapping):
                 self.mapping = mapping
         class ContractFile:
-            pass
-        cf = ContractFile()
-        cf.versions = [ContractVersion(data['2024-01']['mapping'])]
+            def __init__(self, versions=None):
+                self.versions = versions or []
+        cf = ContractFile([ContractVersion(data['2024-01']['mapping'])])
         return cf
     def fake_get_closest_mapping_before(contract_file, period):
         # Always return the only mapping
