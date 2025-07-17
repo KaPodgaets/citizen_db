@@ -45,9 +45,21 @@ def main(dataset: str, period: str, version: int):
     cols_to_drop = ['_data_period', '_source_parquet_path']
     existing_cols_to_drop = [col for col in cols_to_drop if col in staging_df.columns]
     if existing_cols_to_drop:
-        staging_df = staging_df.drop(columns=existing_cols_to_drop)
+        pre_core_df = staging_df.drop(columns=existing_cols_to_drop)
     
-    staging_df['is_current'] = 1
+    pre_core_df['is_current'] = 1
+
+    # Add is_living_alone: 1 if family_index_number is unique, else 0
+    family_counts = pre_core_df['family_index_number'].value_counts()
+    pre_core_df['is_living_alone'] = pre_core_df['family_index_number'].map(lambda x: 1 if family_counts[x] == 1 else 0)
+
+    # Add elders_pair: 1 if family_index_number group has exactly 2 records and both age >= 65, else 0
+    def elders_pair_logic(df):
+        group = df.groupby('family_index_number')
+        # Boolean Series: True if group has 2 records and both age >= 65
+        elders_pair_mask = group['age'].transform(lambda ages: int((len(ages) == 2) and all(ages >= 65)))
+        return elders_pair_mask
+    pre_core_df['is_elder_pair'] = elders_pair_logic(pre_core_df)
     
     # 1. Change data in meta table dataset_version (new record with is_active = 1)
     set_new_active_dataset_version(dataset, period, version)
@@ -56,8 +68,8 @@ def main(dataset: str, period: str, version: int):
     delete_from_core_table(core_schema, dataset, period, version)
     
     # staging_df.to_sql(name=dataset, con=conn, schema=core_schema, if_exists='append', index=False)
-    staging_df.to_sql(dataset, engine, schema=core_schema, if_exists='append', index=False)
-    print(f"Inserted {len(staging_df)} records into {core_schema}.{dataset}")
+    pre_core_df.to_sql(dataset, engine, schema=core_schema, if_exists='append', index=False)
+    print(f"Inserted {len(pre_core_df)} records into {core_schema}.{dataset}")
 
     # update fake_citizen_id table
     run_update_fake_id_table()

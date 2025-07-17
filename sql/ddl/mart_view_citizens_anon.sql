@@ -3,6 +3,8 @@ SELECT
     fake_citizen_id
     , age
     , family_index_number
+    , is_living_alone
+    , is_elder_pair
     , has_phone
     , has_mobile_phone
     , is_welfare_patient

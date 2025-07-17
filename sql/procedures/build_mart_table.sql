@@ -32,6 +32,8 @@ CREATE TABLE #citizens_work
     building_number       NVARCHAR(20),
     apartment_number      NVARCHAR(20),
     family_index_number   INT,
+    is_living_alone       BIT NOT NULL,
+    is_elder_pair         BIT NOT NULL,
     has_phone             BIT,
     has_mobile_phone      BIT,
     is_welfare_patient    BIT,
@@ -80,6 +82,8 @@ with base as (
         , building_number
         , apartment_number
         , family_index_number
+        , is_living_alone
+        , is_elder_pair
     from core.av_bait avb
     where is_current = 1
 ), fake_ids as (
@@ -166,7 +170,9 @@ INSERT INTO #citizens_work (
     street_code,
     building_number,
     apartment_number,
-    family_index_number,
+    family_index_number
+    , is_living_alone
+    , is_elder_pair
     has_phone,
     has_mobile_phone,
     is_welfare_patient,
@@ -209,7 +215,9 @@ SELECT
     b.street_code,
     b.building_number,
     b.apartment_number,
-    b.family_index_number,
+    b.family_index_number
+    , b.is_living_alone
+    , b.is_elder_pair
     /* phone flags */
     CASE WHEN COUNT(p.phone_number) > 0 THEN 1 ELSE 0 END AS has_phone,
     CASE WHEN SUM(CASE WHEN p.type = 'mobile' THEN 1 ELSE 0 END) > 0
@@ -257,7 +265,7 @@ LEFT JOIN hamal_cte AS hml ON b.citizen_id = hml.citizen_id
 GROUP BY
     fid.fake_citizen_id, b.citizen_id, b.first_name, b.last_name, b.age,
     b.street_name, b.street_code, b.building_number,
-    b.apartment_number, b.family_index_number,
+    b.apartment_number, b.family_index_number, b.is_living_alone, b.is_elder_pair,
     w.is_welfare_patient, 
     hml.file_name, hml.is_dead, hml.is_left_the_city_permanent, hml.is_answered_the_call,
     hml.has_final_status, hml.is_lonely, hml.is_address_wrong, hml.new_street_name,

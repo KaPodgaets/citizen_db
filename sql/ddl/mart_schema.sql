@@ -17,6 +17,8 @@ CREATE TABLE mart.citizens (
     building_number NVARCHAR(20) NULL,
     apartment_number NVARCHAR(20) NULL,
     family_index_number INT NOT NULL,
+    is_living_alone BIT NOT NULL,
+    is_elder_pair BIT NOT NULL,
     has_phone BIT NOT NULL,
     has_mobile_phone BIT NOT NULL,
     is_welfare_patient BIT NOT NULL,
