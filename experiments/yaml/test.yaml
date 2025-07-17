@@ -1,0 +1,8 @@
+---
+'2025-01-01':
+  column1: column1translation
+  column2: column2translation
+
+'2025-05-01':
+  column1: column1difftranslation
+  column3: diffcolumn

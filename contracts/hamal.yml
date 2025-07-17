@@ -1,0 +1,22 @@
+'2024-01-01':
+  'FID': citizen_fid
+  'file':  file_name
+  'IsAnsweredTheCall': is_answered_the_call
+  'IsLonely': is_lonely
+  'IsAddressWrong': is_address_wrong
+  'NewStreetName': new_street_name
+  'NewBuildingNumber': new_building_number
+  'NewFlatNumber': new_appartment_number
+  'HasMamad': has_mamad
+  'HasMiklatPrati': has_miklat_prati
+  'HasMiklatZiburi': has_miklat_ziburi
+  'HasMobilityRestriction': has_mobility_restriction
+  'IsDead': is_dead
+  'IsLeftTheCityPermanent': is_left_the_city_permanent
+  'HasTemporaryAddress': has_temporary_address
+  'IsTemporaryAbroad': is_temporary_abroad
+  'TemporaryStreetName': temporary_street_name
+  'TemporaryBuildingNumber': temporary_building_number
+  'TemporaryFlat': temporary_appartment
+  'AppearanceCount': appearance_count
+  'CallcenterCaseNumber': calcenter_case_number

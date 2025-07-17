@@ -1,0 +1,7 @@
+'2024-01-01':
+  'ת.ז': citizen_id
+  'רחוב': street_name
+  'מספר בית': building_number
+  'דירה': apartment_number
+  'טלפון להתקשרות 1': phone_number_1
+  'טלפון להתקשרות 2': phone_number_2

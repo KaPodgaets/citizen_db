@@ -1,0 +1,37 @@
+# Configuration for data pipeline datasets
+# Defines filename patterns and other rules for each dataset
+
+av_bait:
+  filename_regex: '^av_bait_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/av_bait.yml'
+  transform_script: 'src/transformations/scripts/transform_av_bait.py'
+
+new_immigrants:
+  filename_regex: '^new_immigrants_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/new_immigrants.yml'
+  transform_script: 'src/transformations/scripts/transform_new_immigrants.py'
+
+welfare_patients:
+  filename_regex: '^welfare_patients_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/welfare_patients.yml'
+  transform_script: 'src/transformations/scripts/transform_welfare_patients.py'
+
+meser:
+  filename_regex: '^meser_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/meser.yml'
+  transform_script: 'src/transformations/scripts/transform_meser.py'
+
+hazramim:
+  filename_regex: '^hazramim_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/hazramim.yml'
+  transform_script: 'src/transformations/scripts/transform_hazramim.py'
+
+breath_troubles:
+  filename_regex: '^breath_troubles_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/breath_troubles.yml'
+  transform_script: 'src/transformations/scripts/transform_breath_troubles.py'
+
+hamal:
+  filename_regex: '^hamal_(?P<period>\d{4}-\d{2})_v-(?P<version>\d{2})\.xlsx'
+  contract: 'contracts/hamal.yml'
+  transform_script: 'src/transformations/scripts/transform_hamal.py'

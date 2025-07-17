@@ -1,0 +1,6 @@
+enabled: true
+members:
+- Alice
+- Bob
+- Charlie
+project: CitizenDB
