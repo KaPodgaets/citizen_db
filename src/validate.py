@@ -139,10 +139,6 @@ def main(file_id):
             VALUES (:file_id, :status, :error_report)
         """), {"file_id": file_id, "status": status, "error_report": error_report})
 
-def check_unique_values_of_boolean_col(raw_values: numpy.ndarray, column_name: str) -> None:
-    
-    
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate a landed file by file_id.")
