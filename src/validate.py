@@ -81,7 +81,16 @@ def main(file_id):
                             validated_df[column_name] = validated_df[column_name].astype(str)
                         elif str(expected_dtype) == 'Bool' or str(expected_dtype) == 'boolean':
                             # Convert to boolean
-                            validated_df[column_name] = validated_df[column_name].map({'True': True, 'False': False, 'true': True, 'false': False, '1': True, '0': False}).astype('boolean')
+                            validated_df[column_name] = (validated_df[column_name]
+                                .astype(str)
+                                .str.strip()  # remove leading/trailing whitespace
+                                .str.replace(r'_x000D_', '', regex=True)  # remove Excel control codes
+                                .str.lower()  # normalize case
+                                .map({
+                                    'true': True, 'false': False,
+                                    '1': True, '0': False,
+                                    }).astype('boolean')
+                            )
                         else:
                             # For other types, try to convert using pandas
                             validated_df[column_name] = validated_df[column_name].astype(str(expected_dtype))
