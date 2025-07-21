@@ -8,8 +8,7 @@
     - transformation (stage to core)
     - build mart layer 
 
-## Tests
-### Workflow tests
+### Workflow
 - step 0 - backfill fake_ids if exist
 ```bash
 python src/backfill_citizen_fid.py --filepath data/snapshots/fake_id-2025-06-15.xlsx
@@ -22,7 +21,7 @@ python src/ingest.py --file-path data/land/new_immigrants_2024-12_v-01.xlsx
 python src/ingest.py --file-path data/land/meser_2025-06_v-01.xlsx
 python src/ingest.py --file-path data/land/hazramim_2025-05_v-01.xlsx
 python src/ingest.py --file-path data/land/breath_troubles_2025-06_v-01.xlsx
-python src/ingest.py --file-path data/land/hamal_2025-07_v-01.xlsx
+python src/ingest.py --file-path data/land/hamal_2025-07_v-02.xlsx
 python src/run_pipeline.py
 ```
 -step 2 - after run commands, check the DB status
@@ -31,7 +30,9 @@ python src/ingest.py --file-path data/land/av_bait_2025-07_v-01.xlsx
 python src/ingest.py --file-path data/land/welfare_patients_2025-07_v-01.xlsx
 python src/run_pipeline.py
 ```
+#### Validation Separated
 
+## Tests
 ### PyTest - unit and integration tests
 ```bash
 set PYTHONPATH=. && pytest tests/test_database_connection.py

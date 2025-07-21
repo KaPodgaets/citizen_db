@@ -2,7 +2,6 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import argparse
 import pandas as pd
 import yaml
 from sqlalchemy import text
@@ -79,7 +78,7 @@ def main(file_id):
                         elif str(expected_dtype) == 'String' or str(expected_dtype) == 'object':
                             # Ensure string type
                             validated_df[column_name] = validated_df[column_name].astype(str)
-                        elif str(expected_dtype) == 'Bool' or str(expected_dtype) == 'boolean':
+                        elif str(expected_dtype) == 'Bool' or str(expected_dtype) == 'boolean' or str(expected_dtype) == 'bool':
                             # check that there is no values except true and false (in different variations)
                             raw_values = validated_df[column_name].dropna().unique()
                             unexpected = set(raw_values) - {'true', 'false','True', 'False', 'TRUE', 'FALSE', '1', '0'}
@@ -95,7 +94,9 @@ def main(file_id):
                                 .map({
                                     'true': True, 'false': False,
                                     '1': True, '0': False,
-                                    }).astype('boolean')
+                                    'True': True, 'False': False,
+                                    'TRUE': True, 'FALSE': False,
+                                    }).astype(bool)
                             )
                         else:
                             # For other types, try to convert using pandas
@@ -141,7 +142,8 @@ def main(file_id):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Validate a landed file by file_id.")
-    parser.add_argument("--file-id", required=True, type=int, help="File ID from ingestion_log")
-    args = parser.parse_args()
-    main(args.file_id)
+    # parser = argparse.ArgumentParser(description="Validate a landed file by file_id.")
+    # parser.add_argument("--file-id", required=True, type=int, help="File ID from ingestion_log")
+    # args = parser.parse_args()
+    # main(args.file_id)
+    main(27)

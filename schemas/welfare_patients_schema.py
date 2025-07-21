@@ -1,5 +1,5 @@
 import pandera.pandas as pa
-from pandera import Column, DataFrameSchema
+from pandera.pandas import Column, DataFrameSchema
 
 welfare_patients_schema = DataFrameSchema({
     "head_family_citizen_id": Column(pa.Int, nullable=False),
