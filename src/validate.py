@@ -62,7 +62,7 @@ def main(file_id):
         try:
             # Cast columns to proper data types according to schema
             validated_df = df.copy()
-            
+
             for column_name, column_schema in schema.columns.items():
                 if column_name in validated_df.columns:
                     try:
@@ -80,6 +80,12 @@ def main(file_id):
                             # Ensure string type
                             validated_df[column_name] = validated_df[column_name].astype(str)
                         elif str(expected_dtype) == 'Bool' or str(expected_dtype) == 'boolean':
+                            # check that there is no values except true and false (in different variations)
+                            raw_values = validated_df[column_name].dropna().unique()
+                            unexpected = set(raw_values) - {'true', 'false','True', 'False', 'TRUE', 'FALSE', '1', '0'}
+                            if unexpected:
+                                print(f"Warning: Unexpected boolean values in '{column_name}': {unexpected}")
+                            
                             # Convert to boolean
                             validated_df[column_name] = (validated_df[column_name]
                                 .astype(str)
@@ -132,6 +138,11 @@ def main(file_id):
             INSERT INTO meta.validation_log (file_id, status, error_report)
             VALUES (:file_id, :status, :error_report)
         """), {"file_id": file_id, "status": status, "error_report": error_report})
+
+def check_unique_values_of_boolean_col(raw_values: numpy.ndarray, column_name: str) -> None:
+    
+    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate a landed file by file_id.")
