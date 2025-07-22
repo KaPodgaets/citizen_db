@@ -35,7 +35,7 @@ CREATE TABLE mart.citizens (
     is_dead_hamal BIT NOT NULL,
     is_left_the_city_permanent BIT NOT NULL,
     is_answered_the_call  BIT NOT NULL,
-    has_final_status BIT NOT NULL,
+    is_final_status BIT NOT NULL,
     is_lonely BIT NOT NULL,
     is_address_wrong BIT NOT NULL,
     new_street_name NVARCHAR(100) NULL,

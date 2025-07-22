@@ -20,3 +20,4 @@
   'TemporaryFlat': temporary_appartment
   'AppearanceCount': appearance_count
   'CallcenterCaseNumber': calcenter_case_number
+  'IsFinaled': is_final_status

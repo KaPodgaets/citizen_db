@@ -28,6 +28,7 @@ BEGIN
         temporary_appartment NVARCHAR(10) NULL,
         appearance_count INT NULL,
         calcenter_case_number NVARCHAR(10) NULL,
+        is_final_status BIT NOT NULL,
         _data_period NVARCHAR(7) NOT NULL,
         _source_parquet_path NVARCHAR(1024) NOT NULL
     );
@@ -66,6 +67,7 @@ BEGIN
         temporary_appartment NVARCHAR(10) NULL,
         appearance_count INT NULL,
         calcenter_case_number NVARCHAR(10) NULL,
+        is_final_status BIT NOT NULL,
         has_final_status BIT NOT NULL,
         is_current INT NOT NULL
     );
