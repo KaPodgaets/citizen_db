@@ -68,7 +68,6 @@ BEGIN
         appearance_count INT NULL,
         calcenter_case_number NVARCHAR(10) NULL,
         is_final_status BIT NOT NULL,
-        has_final_status BIT NOT NULL,
         is_current INT NOT NULL
     );
 END

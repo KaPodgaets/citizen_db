@@ -16,7 +16,7 @@ SELECT
     , is_dead_hamal
     , is_left_the_city_permanent
     , is_answered_the_call
-    , has_final_status
+    , is_final_status
     , is_lonely 
     , is_address_wrong
     , has_mamad

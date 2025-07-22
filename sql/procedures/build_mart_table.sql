@@ -48,7 +48,7 @@ CREATE TABLE #citizens_work
     is_dead_hamal         BIT,
     is_left_the_city_permanent BIT,
     is_answered_the_call  BIT,
-    has_final_status        BIT,
+    is_final_status        BIT,
     is_lonely               BIT,
     is_address_wrong        BIT,
     new_street_name         NVARCHAR(100) NULL,
@@ -64,8 +64,7 @@ CREATE TABLE #citizens_work
     temporary_building_number NVARCHAR(10) NULL,
     temporary_appartment    NVARCHAR(10) NULL,
     appearance_count        INT NULL,
-    calcenter_case_number   NVARCHAR(10) NULL,
-    is_final_status         BIT
+    calcenter_case_number   NVARCHAR(10) NULL
 );
 
 ------------------------------------------------------------
@@ -138,7 +137,7 @@ with base as (
         , 1 as is_in_hamal_batch
         , is_left_the_city_permanent
         , is_answered_the_call
-        , has_final_status
+        , is_final_status
         , is_lonely
         , is_address_wrong
         , new_street_name
@@ -155,7 +154,6 @@ with base as (
         , temporary_appartment
         , appearance_count
         , calcenter_case_number
-        , is_final_status
     from core.hamal h
     LEFT JOIN core.fake_citizen_ids AS fid ON h.citizen_fid = fid.fake_citizen_id
     where 
@@ -189,7 +187,7 @@ INSERT INTO #citizens_work (
     is_dead_hamal,
     is_left_the_city_permanent,
     is_answered_the_call,
-    has_final_status,
+    is_final_status,
     is_lonely,
     is_address_wrong,
     new_street_name,
@@ -205,8 +203,7 @@ INSERT INTO #citizens_work (
     temporary_building_number,
     temporary_appartment,
     appearance_count,
-    calcenter_case_number,
-    is_final_status
+    calcenter_case_number
 )
 SELECT
     fid.fake_citizen_id,
@@ -240,7 +237,7 @@ SELECT
     , COALESCE(hml.is_dead, 0) as is_dead
     , COALESCE(hml.is_left_the_city_permanent, 0) as is_left_the_city_permanent
     , COALESCE(hml.is_answered_the_call, 0) as is_answered_the_call
-    , COALESCE(hml.has_final_status, 0) as has_final_status
+    , COALESCE(hml.is_final_status, 0) as is_final_status
     , COALESCE(hml.is_lonely, 0) as is_lonely
     , COALESCE(hml.is_address_wrong, 0) as is_address_wrong
     , hml.new_street_name
@@ -257,7 +254,6 @@ SELECT
     , hml.temporary_appartment
     , hml.appearance_count
     , hml.calcenter_case_number
-    , hml.is_final_status
 FROM base as b
 LEFT JOIN fake_ids AS fid ON b.citizen_id = fid.citizen_id
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id
@@ -272,7 +268,7 @@ GROUP BY
     b.apartment_number, b.family_index_number, b.is_living_alone, b.is_elder_pair,
     w.is_welfare_patient, 
     hml.file_name, hml.is_dead, hml.is_left_the_city_permanent, hml.is_answered_the_call,
-    hml.has_final_status, hml.is_lonely, hml.is_address_wrong, hml.new_street_name,
+    hml.is_final_status, hml.is_lonely, hml.is_address_wrong, hml.new_street_name,
     hml.new_building_number, hml.new_appartment_number, hml.has_mamad, hml.has_miklat_prati,
     hml.has_miklat_ziburi, hml.has_mobility_restriction, hml.has_temporary_address,
     hml.is_temporary_abroad, hml.temporary_street_name, hml.temporary_building_number,

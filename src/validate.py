@@ -1,3 +1,4 @@
+import argparse
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -142,8 +143,7 @@ def main(file_id):
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description="Validate a landed file by file_id.")
-    # parser.add_argument("--file-id", required=True, type=int, help="File ID from ingestion_log")
-    # args = parser.parse_args()
-    # main(args.file_id)
-    main(27)
+    parser = argparse.ArgumentParser(description="Validate a landed file by file_id.")
+    parser.add_argument("--file-id", required=True, type=int, help="File ID from ingestion_log")
+    args = parser.parse_args()
+    main(args.file_id)
