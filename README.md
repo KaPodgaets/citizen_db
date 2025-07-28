@@ -99,4 +99,6 @@ yamllint your_file.yml
     - add notification about null values treated as false for user
 - improve sql:
     - in `run_ddl_scripts.py` - hardcoded drop view. need to solve this
-
+- onboarding:
+    - add data lineage
+    - add column meanings description

@@ -156,9 +156,8 @@ def prepare_transforms():
                 ))
                 conn.commit()
                 print(
-                f"""
-                Created PENDING transform task for {dataset}/{period}/{version} (stage_load_task_id={stage_load_task_id})
-                """  # noqa: E501
+                    f"Created PENDING transform task for {dataset}/{period}/{version} "
+                    f"(stage_load_task_id={stage_load_task_id})"
                 )
             else:
                 # If exists and status is FAIL, add to failed_tasks
@@ -198,11 +197,11 @@ def trigger_transforms():
 
     for task_id, dataset, period, version in tasks_to_run:
         script_path = datasets_config.get(dataset, {}).get('transform_script')
+        error_msg = (
+            "Transform script not defined" + 
+            f"for dataset '{dataset}' in datasets_config.yml"
+        )
         if not script_path:
-            error_msg = f"""
-            Transform script not defined for dataset '{dataset}' in datasets_config.yml
-            """
-
             print(error_msg)
             with engine.begin() as conn:
                 update_query = text(
