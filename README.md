@@ -1,12 +1,32 @@
 # ReadMe
+This is project to integrate municipality data sources about citizens from different information systems.
 
-## Flow
+## Flow description
 - ingestion (manually each file)
 - run pipeline (orchestrator, db-based tasks)
     - validation (save as parquet files, physically)
     - load to stage
     - transformation (stage to core)
     - build mart layer 
+
+## Workflow
+N.B. All cmd commands have to be executed from root project dir
+
+### Prerequisites
+- install python
+- install dependencies
+```bash
+
+```
+### Set up the DataBase
+1. Drop all tables and db
+```bash
+
+```
+2. Create DB and all tables
+```bash
+python src/create_db_from_env.py
+```
 
 ### Workflow
 - step 0 - backfill fake_ids if exist

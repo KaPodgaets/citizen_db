@@ -1,5 +1,4 @@
 import pandas as pd
-import re
 
 def clean_phone_number(series: pd.Series) -> pd.Series:
     """

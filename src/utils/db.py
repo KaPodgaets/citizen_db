@@ -23,3 +23,15 @@ def get_connection_uri():
     encoded_connection_string = quote_plus(connection_string)
     connection_uri = f"mssql+pyodbc:///?odbc_connect={encoded_connection_string}"
     return connection_uri
+
+def get_connection_uri_to_master():
+    connection_string = (
+        f"Driver={{ODBC Driver 17 for SQL Server}};"
+        f"Server={settings.server};"
+        f"Database=master;"
+        "Trusted_Connection=yes;"
+    )
+
+    encoded_connection_string = quote_plus(connection_string)
+    connection_uri = f"mssql+pyodbc:///?odbc_connect={encoded_connection_string}"
+    return connection_uri
