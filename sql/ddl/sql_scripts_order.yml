@@ -1,0 +1,14 @@
+order:
+  - create_db.sql
+  - meta_schema.sql
+  - av_bait_schema.sql
+  - hamal.sql
+  - hazramim.sql
+  - new_immigrants.sql
+  - breath_troubles.sql
+  - meser.sql
+  - welfare_patients.sql
+  - phone_numbers.sql
+  - fake_ids.sql
+  - mart_schema.sql
+  - mart_view_citizens_anon.sql

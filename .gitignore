@@ -205,5 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# My addings specific for this project
 /xlsx test files/
 /data/
+.venv/

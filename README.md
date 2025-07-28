@@ -14,18 +14,23 @@ N.B. All cmd commands have to be executed from root project dir
 
 ### Prerequisites
 - install python
+```
+python --version                            # check is Python istalled and its version
+winget install --id Python.Python.3.12      # intall LTS version of Python (if not installed)
+winget upgrade --id Python.Python.3.12      # update your Python to current version (if installed)
+```
 - install dependencies
 ```bash
 
 ```
 ### Set up the DataBase
-1. Drop all tables and db
-```bash
-
-```
-2. Create DB and all tables
+1. Drop all tables and db and create new (WARNING! YOU WILL LOST YOUR DATA!)
 ```bash
 python src/create_db_from_env.py
+```
+2. Create all tables
+```bash
+python src/run_ddl_scripts.py
 ```
 
 ### Workflow

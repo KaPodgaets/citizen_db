@@ -1,11 +1,18 @@
+from urllib.parse import quote_plus
+
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from urllib.parse import quote_plus
+
 from src.utils.config import settings
 
 _engine: Engine | None = None
 
 def get_engine() -> Engine:
+    """
+    Return a SQLAlchemy engine for the project's database defined in .env
+
+    Uses the server from settings and Windows authentication.
+    """
     global _engine
     db_uri = get_connection_uri()
     if _engine is None:
@@ -13,6 +20,11 @@ def get_engine() -> Engine:
     return _engine
 
 def get_connection_uri():
+    """
+    Return a SQLAlchemy connection URI for the project's database defined in .env
+
+    Uses the server from settings and Windows authentication.
+    """
     connection_string = (
         f"Driver={{ODBC Driver 17 for SQL Server}};"
         f"Server={settings.server};"
@@ -25,6 +37,12 @@ def get_connection_uri():
     return connection_uri
 
 def get_connection_uri_to_master():
+    """
+    Return a SQLAlchemy connection URI for the 'master' database.
+
+    Uses the server from settings and Windows authentication.
+    """
+
     connection_string = (
         f"Driver={{ODBC Driver 17 for SQL Server}};"
         f"Server={settings.server};"
