@@ -62,4 +62,7 @@ yamllint your_file.yml
     - phone prioritization: duplicates, mark as not relevant
     - phone from hamal: option to add telephone in HAMAL app
     - list of addresses with prioritization (as phones)
-     
+- improve validation:
+    - for BOOL columns add check for null values. null values = false value.
+    - add notification about null values treated as false for user
+

@@ -57,7 +57,7 @@ def main(dataset: str, period: str, version: int):
     def elders_pair_logic(df):
         group = df.groupby('family_index_number')
         # Boolean Series: True if group has 2 records and both age >= 65
-        elders_pair_mask = group['age'].transform(lambda ages: int((len(ages) == 2) and all(ages >= 65)))
+        elders_pair_mask = group['age'].transform(lambda ages: int((len(ages) == 2) and all(ages >= 70)))
         return elders_pair_mask
     pre_core_df['is_elder_pair'] = elders_pair_logic(pre_core_df)
     
