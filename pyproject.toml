@@ -5,7 +5,7 @@ description = "ETL and data management for citizen database"
 authors = ["Podgaets Konstantin - Nahariya municipality"]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "3.12"
 pandas = "*"
 sqlalchemy = "*"
 pyodbc = "*"

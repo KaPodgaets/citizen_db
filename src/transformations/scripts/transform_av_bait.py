@@ -1,25 +1,35 @@
 import argparse
-import sys
 import os
+import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 import pandas as pd
 from sqlalchemy import text
 
 from src.utils.db import get_engine
+from src.utils.fake_id_utils import (
+    run_update_fake_id_table,
+    save_fake_id_table_as_snapshot,
+)
 from src.utils.metadata_helpers import set_new_active_dataset_version
-from src.utils.fake_id_utils import run_update_fake_id_table, save_fake_id_table_as_snapshot
 
-def delete_from_core_table(core_schema: str, dataset: str, period: str, version: int) -> None:
+
+def delete_from_core_table(
+        core_schema: str,
+        dataset: str,
+        period: str,
+        version: int) -> None:
     engine = get_engine()
 
     with engine.begin() as conn:
-        
         try:
             conn.execute(text(f"DELETE FROM {core_schema}.{dataset}"))
             print("Deleted data for from core table")
         except Exception as e:
-            print(f"Could not delete old data, perhaps schema not updated yet? Error: {e}")
+            print(
+                f"Could not delete old data, perhaps schema not updated yet? Error: {e}"
+            )
 
 
 def main(dataset: str, period: str, version: int):

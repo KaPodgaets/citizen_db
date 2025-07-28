@@ -1,5 +1,5 @@
 order:
-  - create_db.sql
+  # - create_db.sql
   - meta_schema.sql
   - av_bait_schema.sql
   - hamal.sql
