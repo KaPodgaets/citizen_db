@@ -18,7 +18,7 @@ winget upgrade --id Python.Python.3.12      # update your Python to current vers
 ```
 - install dependencies
 ```bash
-pip install pandas sqlalchemy pyodbc pydantic-settings pyyaml
+pip install pandas sqlalchemy pyodbc pydantic-settings pyyaml pandera openpyxl pyarrow fastparquet
 ```
 
 ### Set up the DataBase

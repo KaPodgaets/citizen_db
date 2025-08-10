@@ -210,3 +210,5 @@ __marimo__/
 /xlsx test files/
 /data/
 .venv/
+.msixbundle
+AppInstaller.msixbundle
