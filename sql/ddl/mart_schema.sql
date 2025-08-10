@@ -55,9 +55,3 @@ CREATE TABLE mart.citizens (
 )
 END
 GO
-
-
-
-        
-    
-        

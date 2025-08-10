@@ -1,18 +1,22 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import subprocess
-import yaml
-from sqlalchemy import text
 from datetime import datetime
 
-from src.utils.db import get_engine
+import yaml
+from sqlalchemy import text
+
 from src.utils.config import settings
+from src.utils.db import get_engine
 
 
 def trigger_validation():
-    """Finds ingested files with status 'INGESTED' and triggers the validation script for each."""
+    """Finds ingested files with status 'INGESTED' 
+    and triggers the validation script for each."""
+
     engine = get_engine()
     with engine.connect() as conn:
         query = text("""
@@ -29,15 +33,20 @@ def trigger_validation():
         for row in ingested_files:
             file_id = row[0]
             print(f"Triggering validation for file_id: {file_id}")
-            subprocess.run(['python', 'src/validate.py', '--file-id', str(file_id)], check=True)
+            subprocess.run(
+                ['python', 'src/validate.py', '--file-id', str(file_id)],
+                check=True
+            )
 
 
 def trigger_stage_load():
     """Finds validated files and triggers the stage loading script for each."""
     engine = get_engine()
     with engine.connect() as conn:
-        # Selects validation_log records with status 'PASS', whose corresponding ingestion_log record is 'INGESTED',
-        # and which do not have a 'PASS' record in stage_load_log for that validation_log_id.
+        # Selects validation_log records with status 'PASS',
+        # whose corresponding ingestion_log record is 'INGESTED',
+        # and which do not have a 'PASS' record
+        # in stage_load_log for that validation_log_id.
         query = text("""
             SELECT vl.id
             FROM meta.validation_log vl
@@ -45,14 +54,22 @@ def trigger_stage_load():
             WHERE vl.status = 'PASS'
               AND il.status = 'INGESTED'
               AND vl.id NOT IN (
-                  SELECT validation_log_id FROM meta.stage_load_log WHERE status = 'PASS'
+                SELECT validation_log_id FROM meta.stage_load_log WHERE status = 'PASS'
               )
         """)
         validated_files = conn.execute(query).fetchall()
         for row in validated_files:
             validation_log_id = row[0]
             print(f"Triggering stage load for validation_log_id: {validation_log_id}")
-            subprocess.run(['python', 'src/load_stage.py', '--validation-log-id', str(validation_log_id)], check=True)
+            subprocess.run(
+                [
+                    'python',
+                    'src/load_stage.py',
+                    '--validation-log-id',
+                    str(validation_log_id)
+                ],
+                check=True
+            )
 
 
 def prepare_transforms():
@@ -62,7 +79,8 @@ def prepare_transforms():
         # For each stage_load_log record:
         # - with status 'PASS'
         # - with status 'INGESTED' in ingestion_log table (through validation_log table)
-        # - with period and version greater than period and version of record with is_active = 1 from dataset_version table for the same dataset
+        # - with period and version greater than period and version of record with
+        # is_active = 1 from dataset_version table for the same dataset
         query = text("""
             SELECT il.dataset, il.period, il.version, sll.id as stage_load_task_id
             FROM meta.stage_load_log sll
@@ -87,38 +105,81 @@ def prepare_transforms():
 
         failed_tasks = []
         for dataset, period, version, stage_load_task_id in new_work:
-            # Only create a new task if there is no record for the same stage_load_task_id
-            check_query = text("""
+            # Only create a new task if there is no record
+            # for the same stage_load_task_id
+            check_query = text(
+                """
                 SELECT 
                     id, status, retry_count
                 FROM meta.transform_log 
-                WHERE stage_load_task_id = :stage_load_task_id
-            """)
-            existing = conn.execute(check_query, {"stage_load_task_id": stage_load_task_id}).fetchone()
+                WHERE 
+                    stage_load_task_id = :stage_load_task_id
+                """
+            )
+
+            existing = (
+                conn
+                .execute(check_query, {"stage_load_task_id": stage_load_task_id})
+                .fetchone()
+            )
             
             if not existing:
-                insert_query = text("""
-                    INSERT INTO meta.transform_log (dataset, period, version, stage_load_task_id, status, retry_count)
-                    VALUES (:dataset, :period, :version, :stage_load_task_id, 'PENDING', 0)
-                """)
-                conn.execute(insert_query, {"dataset": dataset, "period": period, "version": version, "stage_load_task_id": stage_load_task_id})
+                insert_query = text(
+                    """
+                        INSERT INTO meta.transform_log 
+                            (
+                                dataset,
+                                period,
+                                version,
+                                stage_load_task_id,
+                                status,
+                                retry_count
+                            )
+                        VALUES (
+                            :dataset,
+                            :period,
+                            :version,
+                            :stage_load_task_id,
+                            'PENDING',
+                            0
+                        )
+                    """
+                )
+                (conn.execute(
+                    insert_query, 
+                    {
+                        "dataset": dataset,
+                        "period": period,
+                        "version": version,
+                        "stage_load_task_id": stage_load_task_id
+                    }
+                ))
                 conn.commit()
-                print(f"Created PENDING transform task for {dataset}/{period}/{version} (stage_load_task_id={stage_load_task_id})")
+                print(
+                    f"Created PENDING transform task for {dataset}/{period}/{version} "
+                    f"(stage_load_task_id={stage_load_task_id})"
+                )
             else:
                 # If exists and status is FAIL, add to failed_tasks
                 _, status, retry_count = existing
-                if (status == 'FAIL' and retry_count == settings.transformation_retries_default):
+                if (
+                    status == 'FAIL'
+                    and retry_count == settings.transformation_retries_default
+                ):
                     failed_tasks.append((dataset, period, version))
 
         for dataset, period, version in failed_tasks:
-            print(f"""
+            print(
+                f"""
                 [ALERT]: You MUST provide new data (file) for dataset '{dataset}' and period '{period}'
                 because the actual dataset version {version} failed to transform and ran out of retries,
-                but no new version was ingested.""")
+                but no new version was ingested.
+                """  # noqa: E501
+            )
         
 
 def trigger_transforms():
-    """Triggers the transform script for PENDING tasks or failed tasks that can be retried."""
+    """Triggers the transform script for PENDING tasks or failed tasks that can be retried."""  # noqa: E501
     retries = settings.transformation_retries_default
 
     engine = get_engine()
@@ -136,19 +197,42 @@ def trigger_transforms():
 
     for task_id, dataset, period, version in tasks_to_run:
         script_path = datasets_config.get(dataset, {}).get('transform_script')
+        error_msg = (
+            "Transform script not defined" + 
+            f"for dataset '{dataset}' in datasets_config.yml"
+        )
         if not script_path:
-            error_msg = f"Transform script not defined for dataset '{dataset}' in datasets_config.yml"
             print(error_msg)
             with engine.begin() as conn:
-                update_query = text("UPDATE meta.transform_log SET status = 'FAIL', error_message = :err, retry_count = 99 WHERE id = :id")
+                update_query = text(
+                    """
+                    UPDATE meta.transform_log
+                    SET status = 'FAIL',
+                        error_message = :err,
+                        retry_count = 99 
+                    WHERE id = :id
+                    """
+                )
                 conn.execute(update_query, {"err": error_msg, "id": task_id})
             continue
 
-        print(f"Triggering transform for {dataset}/{period}/{version} (Task ID: {task_id})")
+        print(f"""
+              Triggering transform for {dataset}/{period}/{version} (Task ID: {task_id})
+              """)
 
         proc = subprocess.run(
-            ['python', script_path, '--dataset', dataset, '--period', period, '--version', str(version)],
-            capture_output=True, text=True
+            [
+                "python",
+                script_path,
+                "--dataset",
+                dataset,
+                "--period",
+                period,
+                "--version",
+                str(version),
+            ],
+            capture_output=True,
+            text=True,
         )
 
         with engine.begin() as conn:
@@ -165,24 +249,38 @@ def trigger_transforms():
                 # Failure
                 error_msg = proc.stderr or proc.stdout
                 print(f"Transform for {dataset}/{period} FAILED. Error:\n{error_msg}")
-                update_query = text("""
-                    UPDATE meta.transform_log 
-                    SET status = 'FAIL', retry_count = retry_count + 1, last_attempt_timestamp = :now, error_message = :err
-                    WHERE id = :id
-                """)
-                conn.execute(update_query, {"now": datetime.now(), "err": error_msg, "id": task_id})
+
+                update_query = text(
+                    """
+                        UPDATE meta.transform_log 
+                        SET status = 'FAIL',
+                            retry_count = retry_count + 1,
+                            last_attempt_timestamp = :now,
+                            error_message = :err
+                        WHERE id = :id
+                    """
+                )
+
+                conn.execute(
+                    update_query,
+                    {
+                        "now": datetime.now(),
+                        "err": error_msg,
+                        "id": task_id
+                    }
+                )
                 print(f"See meta.transform_log (ID: {task_id}) for details.")
 
 
 def trigger_publish():
-    """Triggers the publish script of datamart layer """
+    """Triggers the publish script of datamart layer"""
     print("[orchestrator] : Triggering publish script (publish.py)")
     subprocess.run(['python', 'src/publish.py'], check=True)
 
 
 if __name__ == "__main__":
     print("--- Pipeline Orchestrator Starting ---")
-    trigger_validation() # In a real scenario, ingestion would be separate. For now, assume files are ingested.
+    trigger_validation()
     trigger_stage_load()
     prepare_transforms()
     trigger_transforms()

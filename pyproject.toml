@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "citizen_db"
+version = "0.1.0"
+description = "ETL and data management for citizen database"
+authors = ["Podgaets Konstantin - Nahariya municipality"]
+
+[tool.poetry.dependencies]
+python = "3.12"
+pandas = "*"
+sqlalchemy = "*"
+pyodbc = "*"
+pydantic-settings = "*"
+pyyaml = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+select = ["E", "F", "I"]  # E=pycodestyle, F=pyflakes, I=import order (isort)
+exclude = ["build", ".venv"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # ignore unused-import in __init__.py
