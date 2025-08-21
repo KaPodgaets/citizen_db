@@ -21,3 +21,4 @@
   'AppearanceCount': appearance_count
   'CallcenterCaseNumber': calcenter_case_number
   'IsFinaled': is_final_status
+  'IsActualHamalBatch': is_actual_hamal_batch

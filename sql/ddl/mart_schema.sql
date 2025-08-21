@@ -51,7 +51,8 @@ CREATE TABLE mart.citizens (
     temporary_building_number NVARCHAR(10) NULL,
     temporary_appartment NVARCHAR(10) NULL,
     appearance_count INT NULL,
-    calcenter_case_number NVARCHAR(10) NULL
+    calcenter_case_number NVARCHAR(10) NULL,
+    is_actual_hamal_batch BIT NOT NULL
 )
 END
 GO

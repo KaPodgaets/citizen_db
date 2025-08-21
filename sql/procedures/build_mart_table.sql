@@ -64,7 +64,8 @@ CREATE TABLE #citizens_work
     temporary_building_number NVARCHAR(10) NULL,
     temporary_appartment    NVARCHAR(10) NULL,
     appearance_count        INT NULL,
-    calcenter_case_number   NVARCHAR(10) NULL
+    calcenter_case_number   NVARCHAR(10) NULL,
+    is_actual_hamal_batch   BIT
 );
 
 ------------------------------------------------------------
@@ -154,6 +155,7 @@ with base as (
         , temporary_appartment
         , appearance_count
         , calcenter_case_number
+        , is_actual_hamal_batch
     from core.hamal h
     LEFT JOIN core.fake_citizen_ids AS fid ON h.citizen_fid = fid.fake_citizen_id
     where 
@@ -203,7 +205,8 @@ INSERT INTO #citizens_work (
     temporary_building_number,
     temporary_appartment,
     appearance_count,
-    calcenter_case_number
+    calcenter_case_number,
+    is_actual_hamal_batch
 )
 SELECT
     fid.fake_citizen_id,
@@ -254,6 +257,7 @@ SELECT
     , hml.temporary_appartment
     , hml.appearance_count
     , hml.calcenter_case_number
+    , MAX(CASE WHEN COALESCE(hml.is_actual_hamal_batch, 0) > 0 THEN 1 ELSE 0 END) AS is_actual_hamal_batch
 FROM base as b
 LEFT JOIN fake_ids AS fid ON b.citizen_id = fid.citizen_id
 LEFT JOIN welfare_patients_cte AS w ON b.citizen_id = w.citizen_id

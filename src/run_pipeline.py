@@ -216,9 +216,10 @@ def trigger_transforms():
                 conn.execute(update_query, {"err": error_msg, "id": task_id})
             continue
 
-        print(f"""
-              Triggering transform for {dataset}/{period}/{version} (Task ID: {task_id})
-              """)
+        print(
+            f"Triggering transform for {dataset}/{period}/{version} " + 
+            f"(Task ID: {task_id})"
+        )
 
         proc = subprocess.run(
             [

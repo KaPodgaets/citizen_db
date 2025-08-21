@@ -27,4 +27,5 @@ SELECT
     , is_temporary_abroad
     , appearance_count
     , calcenter_case_number
+    , is_actual_hamal_batch
 FROM mart.citizens;

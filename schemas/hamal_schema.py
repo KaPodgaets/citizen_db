@@ -23,5 +23,6 @@ hamal_schema = DataFrameSchema({
     "temporary_appartment": Column(pa.String, nullable=True),
     "appearance_count": Column(pa.Int, nullable=True),
     "calcenter_case_number": Column(pa.String, nullable=True),
-    "is_final_status": Column(pa.Bool, nullable=True)
+    "is_final_status": Column(pa.Bool, nullable=True),
+    "is_actual_hamal_batch": Column(pa.Bool, nullable=True)
 })

@@ -29,6 +29,7 @@ BEGIN
         appearance_count INT NULL,
         calcenter_case_number NVARCHAR(10) NULL,
         is_final_status BIT NOT NULL,
+        is_actual_hamal_batch BIT NOT NULL,
         _data_period NVARCHAR(7) NOT NULL,
         _source_parquet_path NVARCHAR(1024) NOT NULL
     );
@@ -68,7 +69,8 @@ BEGIN
         appearance_count INT NULL,
         calcenter_case_number NVARCHAR(10) NULL,
         is_final_status BIT NOT NULL,
-        is_current INT NOT NULL
+        is_current INT NOT NULL,
+        is_actual_hamal_batch BIT NOT NULL
     );
 END
 GO
