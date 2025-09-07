@@ -38,12 +38,12 @@ python src/backfill_citizen_fid.py --filepath data/snapshots/fake_id-2025-07-27.
 ```
 - step 1 - after run commands, check the DB status
 ```bash
-python src/ingest.py --file-path data/land/av_bait_2025-06_v-01.xlsx
-python src/ingest.py --file-path data/land/welfare_patients_2025-06_v-01.xlsx
-python src/ingest.py --file-path data/land/new_immigrants_2024-12_v-01.xlsx
-python src/ingest.py --file-path data/land/meser_2025-06_v-01.xlsx
-python src/ingest.py --file-path data/land/hazramim_2025-05_v-01.xlsx
-python src/ingest.py --file-path data/land/breath_troubles_2025-06_v-01.xlsx
+python src/ingest.py --file-path data/land/av_bait_2025-08_v-01.xlsx
+python src/ingest.py --file-path data/land/welfare_patients_2025-08_v-01.xlsx
+python src/ingest.py --file-path data/land/new_immigrants_2025-09_v-01.xlsx
+python src/ingest.py --file-path data/land/meser_2025-08_v-01.xlsx
+python src/ingest.py --file-path data/land/hazramim_2025-08_v-01.xlsx
+python src/ingest.py --file-path data/land/breath_troubles_2025-08_v-01.xlsx
 python src/ingest.py --file-path data/land/hamal_2025-07_v-02.xlsx
 python src/run_pipeline.py
 ```
